@@ -108,7 +108,7 @@ function generateDiagram(dml, scriptUri) {
 				src="${scriptUri}"
 			></script>
 		</head>
-		<body>
+		<body style="background-color: white;">
 
 		<a id="download" style="cursor: pointer;">
 			Download SVG
