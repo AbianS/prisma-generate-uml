@@ -41,7 +41,7 @@ function activate(context) {
         panel.webview.html = svgContent
       } else {
         vscode.window.showInformationMessage(
-          "Abre un archivo .prisma para usar este comando.",
+          "Open a .prisma file to use this command",
         )
       }
     },

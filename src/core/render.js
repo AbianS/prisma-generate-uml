@@ -119,8 +119,6 @@ function generateDiagram(dml, scriptUri) {
 				
 	
 				const graphDiv = document.getElementById("graphDiv");
-
-				console.log(mermaid);
 	
 				const svgId = "mermaid-svg";
 	
