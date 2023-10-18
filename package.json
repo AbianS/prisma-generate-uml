@@ -2,7 +2,7 @@
   "name": "prisma-generate-uml",
   "displayName": "Prisma Generate UML",
   "description": "generate UML Diagram from prisma schema",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "icon": "media/readme/logo.jpg",
   "repository": "https://github.com/AbianS/prisma-generate-uml",
   "publisher": "AbianS",
@@ -15,8 +15,8 @@
   "activationEvents": [
     "onStartupFinished"
   ],
-  "main": "./src/extension.js",
-  "browser": "./src/extension.js",
+  "main": "./dist/extension.js",
+  "browser": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
@@ -38,12 +38,18 @@
       ]
     }
   },
-  "scripts": {},
+  "scripts": {
+    "vscode:prepublish": "npm run esbuild -- --minify && npm run copy",
+    "copy": "shx cp node_modules/@prisma/prisma-schema-wasm/src/prisma_schema_build_bg.wasm dist/",
+    "esbuild": "esbuild ./src/extension.js --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node"
+  },
   "devDependencies": {
     "@types/node": "18.x",
-    "@types/vscode": "^1.83.0"
+    "@types/vscode": "^1.83.0",
+    "esbuild": "^0.19.5",
+    "shx": "^0.3.4"
   },
   "dependencies": {
-    "@prisma/internals": "^5.4.1"
+    "@prisma/internals": "^5.4.2"
   }
 }
