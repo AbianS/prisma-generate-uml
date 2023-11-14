@@ -7,6 +7,8 @@ const path = require("path")
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
+  let panel
+
   const disposable = vscode.commands.registerCommand(
     "prisma-generate-uml.generateUML",
     async () => {
@@ -18,9 +20,9 @@ function activate(context) {
         const response = await getDMMF({ datamodel: content })
         const dml = renderDml(response)
 
-        const panel = vscode.window.createWebviewPanel(
+        panel = vscode.window.createWebviewPanel(
           "prismaEr",
-          "Prisma Diagram",
+          "Prisma Schema UML",
           vscode.ViewColumn.Two,
           {
             enableScripts: true,
@@ -28,6 +30,10 @@ function activate(context) {
               vscode.Uri.file(path.join(context.extensionPath, "src/core")),
             ],
           },
+        )
+
+        panel.iconPath = vscode.Uri.file(
+          path.join(context.extensionPath, "media/uml.svg"),
         )
 
         const scriptUri = panel.webview.asWebviewUri(
@@ -39,6 +45,10 @@ function activate(context) {
         const svgContent = generateDiagram(dml, scriptUri)
 
         panel.webview.html = svgContent
+
+        if (panel.active) {
+          vscode.commands.executeCommand("setContext", "prismaIsFocused", true)
+        }
       } else {
         vscode.window.showInformationMessage(
           "Open a .prisma file to use this command",
@@ -47,7 +57,16 @@ function activate(context) {
     },
   )
 
-  context.subscriptions.push(disposable)
+  const downloadDispoable = vscode.commands.registerCommand(
+    "prisma-generate-uml.download",
+    () => {
+      if (panel) {
+        panel.webview.postMessage({ command: "download" })
+      }
+    },
+  )
+
+  context.subscriptions.push(disposable, downloadDispoable)
 }
 
 function deactivate() {}

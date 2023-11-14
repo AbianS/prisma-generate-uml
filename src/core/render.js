@@ -99,16 +99,27 @@ function generateDiagram(dml, scriptUri) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 			<meta http-equiv="Content-Security-Policy">
 
-			<title>Document</title>
 			<script
 				src="${scriptUri}"
 			></script>
+      <style>
+        body {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          overflow: hidden;
+          margin: 0;
+        }
+        svg {
+          transform-origin: center;
+          position: relative;
+          cursor: grab;
+          user-select: none;
+        }
+      </style>
 		</head>
-		<body style="background-color: white;">
-
-		<a id="download" style="cursor: pointer;">
-			Download SVG
-		</a>
+		<body style="background-position: 0 0, 8px 8px; background-size: 16px 16px; background-image: linear-gradient(45deg, #141414 25%, transparent 25%, transparent 75%, #141414 75%, #141414), linear-gradient(45deg, #141414 25%, transparent 25%, transparent 75%, #141414 75%, #141414)">
 
 			<div id="graphDiv"></div>
 	
@@ -117,7 +128,7 @@ function generateDiagram(dml, scriptUri) {
 					startOnLoad: false,
 				});
 				
-	
+
 				const graphDiv = document.getElementById("graphDiv");
 	
 				const svgId = "mermaid-svg";
@@ -133,16 +144,58 @@ function generateDiagram(dml, scriptUri) {
 				svgEl.setAttribute("height", undefined);
 				svgEl.setAttribute("width", undefined);
 
-				const download = document.getElementById("download");
-				download.addEventListener("click", () => {
-					const svg = svgEl.outerHTML;
-					const blob = new Blob([svg], { type: "image/svg+xml" });
-					const url = URL.createObjectURL(blob);
-					const link = document.createElement("a");
-					link.href = url;
-					link.download = "prisma.svg";
-					link.click();
-				});
+        let scale = 1;
+        document.body.addEventListener('wheel', function(e) {
+          e.preventDefault();
+          let oldScale = scale;
+          scale += e.deltaY * -0.005;
+          scale = Math.min(Math.max(1, scale), 20);
+          svgEl.style.transform = \`scale(\${scale})\`;
+          if(scale <= 1) {
+            svgEl.style.left = '0px';
+            svgEl.style.top = '0px';
+          } else if(e.deltaY > 0 && oldScale > scale) { // Zooming out
+            svgEl.style.left = \`\${parseInt(svgEl.style.left || 0) / 2}px\`;
+            svgEl.style.top = \`\${parseInt(svgEl.style.top || 0) / 2}px\`;
+          }
+        });
+
+        let isPanning = false;
+        let startX = 0, startY = 0;
+        svgEl.addEventListener('mousedown', function(e) {
+          if(e.button === 0) { // Left mouse button
+            isPanning = true;
+            startX = e.clientX - parseInt(svgEl.style.left || 0);
+            startY = e.clientY - parseInt(svgEl.style.top || 0);
+          }
+        });
+        window.addEventListener('mousemove', function(e) {
+          if(isPanning && scale > 1) {
+            svgEl.style.left = \`\${e.clientX - startX}px\`;
+            svgEl.style.top = \`\${e.clientY - startY}px\`;
+          }
+        });
+        window.addEventListener('mouseup', function(e) {
+          if(e.button === 0) { // Left mouse button
+            isPanning = false;
+          }
+        });
+
+        window.addEventListener('message', event => {
+          const message = event.data; // The JSON data our extension sent
+      
+          switch (message.command) {
+              case 'download':
+                  const svg = svgEl.outerHTML;
+                  const blob = new Blob([svg], { type: "image/svg+xml" });
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.download = "prisma.svg";
+                  link.click();
+                  break;
+          }
+      });
 			</script>
 		</body>
 	</html>
