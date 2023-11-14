@@ -186,14 +186,16 @@ function generateDiagram(dml, scriptUri) {
       
           switch (message.command) {
               case 'download':
-                  const svg = svgEl.outerHTML;
-                  const blob = new Blob([svg], { type: "image/svg+xml" });
-                  const url = URL.createObjectURL(blob);
-                  const link = document.createElement("a");
-                  link.href = url;
-                  link.download = "prisma.svg";
-                  link.click();
-                  break;
+                const svgClone = svgEl.cloneNode(true);
+                svgClone.style.transform = '';
+                const svg = svgClone.outerHTML;
+                const blob = new Blob([svg], { type: "image/svg+xml" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "prisma.svg";
+                link.click();
+                break;
           }
       });
 			</script>
