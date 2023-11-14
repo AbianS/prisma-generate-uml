@@ -24,3 +24,14 @@ Generate UML diagrams with a single click:
 Simplify data architecture visualization in an exciting way! 🚀
 
 ![usage](media/readme/usage.jpg)
+
+## Download the UML Diagram
+
+Download your UML diagram in SVG format effortlessly:
+
+1. Click the "Download SVG" button above the generated UML diagram.
+2. Save the SVG file to your preferred location.
+
+Enjoy the flexibility of downloading your UML diagrams with just a click! 🌟
+
+![download](media/readme/download.png) |
