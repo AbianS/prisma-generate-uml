@@ -2,8 +2,8 @@
   "name": "prisma-generate-uml",
   "displayName": "Prisma Generate UML",
   "description": "generate UML Diagram from prisma schema",
-  "version": "1.0.7",
-  "icon": "media/readme/logo.jpg",
+  "version": "1.0.8",
+  "icon": "media/readme/logo.png",
   "repository": "https://github.com/AbianS/prisma-generate-uml",
   "publisher": "AbianS",
   "engines": {
@@ -23,8 +23,16 @@
         "command": "prisma-generate-uml.generateUML",
         "title": "Generate Prisma UML",
         "icon": {
-          "light": "./media/logo.svg",
-          "dark": "./media/logo.svg"
+          "light": "./media/logo_light.svg",
+          "dark": "./media/logo_dark.svg"
+        }
+      },
+      {
+        "command": "prisma-generate-uml.download",
+        "title": "Download SVG",
+        "icon": {
+          "light": "./media/download_light.svg",
+          "dark": "./media/download_dark.svg"
         }
       }
     ],
@@ -34,6 +42,11 @@
           "when": "editorLangId == prisma",
           "command": "prisma-generate-uml.generateUML",
           "group": "navigation"
+        },
+        {
+          "command": "prisma-generate-uml.download",
+          "group": "navigation",
+          "when": "prismaIsFocused && !editorLangId"
         }
       ]
     }
