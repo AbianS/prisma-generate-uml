@@ -120,46 +120,25 @@ function generateDiagram(dml, scriptUri) {
       </style>
 		</head>
 		<body style="background-position: 0 0, 8px 8px; background-size: 16px 16px; background-image: linear-gradient(45deg, #141414 25%, transparent 25%, transparent 75%, #141414 75%, #141414), linear-gradient(45deg, #141414 25%, transparent 25%, transparent 75%, #141414 75%, #141414)">
-
-			<div id="graphDiv"></div>
-	
+      <div id="graphDiv"></div>
 			<script>
 				mermaid.initialize({
 					startOnLoad: false,
 				});
-				
-
+        
 				const graphDiv = document.getElementById("graphDiv");
-	
 				const svgId = "mermaid-svg";
-	
+
 				mermaid.mermaidAPI.render(
 					svgId,
 					\`${dml}\`,
 					(svg) => (graphDiv.innerHTML = svg)
 				);
-	
 				const svgEl = document.getElementById(svgId);
-	
 				svgEl.setAttribute("height", undefined);
 				svgEl.setAttribute("width", undefined);
 
         let scale = 1;
-        document.body.addEventListener('wheel', function(e) {
-          e.preventDefault();
-          let oldScale = scale;
-          scale += e.deltaY * -0.005;
-          scale = Math.min(Math.max(1, scale), 20);
-          svgEl.style.transform = \`scale(\${scale})\`;
-          if(scale <= 1) {
-            svgEl.style.left = '0px';
-            svgEl.style.top = '0px';
-          } else if(e.deltaY > 0 && oldScale > scale) { // Zooming out
-            svgEl.style.left = \`\${parseInt(svgEl.style.left || 0) / 2}px\`;
-            svgEl.style.top = \`\${parseInt(svgEl.style.top || 0) / 2}px\`;
-          }
-        });
-
         let isPanning = false;
         let startX = 0, startY = 0;
         svgEl.addEventListener('mousedown', function(e) {
@@ -180,22 +159,36 @@ function generateDiagram(dml, scriptUri) {
             isPanning = false;
           }
         });
-
+        document.body.addEventListener('wheel', function(e) {
+          e.preventDefault();
+          let oldScale = scale;
+          scale += e.deltaY * -0.005;
+          scale = Math.min(Math.max(1, scale), 20);
+          svgEl.style.transform = \`scale(\${scale})\`;
+          if (scale > 1) {
+            // Zoom in: do not center the image
+            svgEl.style.left = \`\${parseInt(svgEl.style.left || 0) / oldScale * scale}px\`;
+            svgEl.style.top = \`\${parseInt(svgEl.style.top || 0) / oldScale * scale}px\`;
+          } else {
+            // Zoom out: center the image
+            svgEl.style.left = '0px';
+            svgEl.style.top = '0px';
+          }
+        });
         window.addEventListener('message', event => {
           const message = event.data; // The JSON data our extension sent
-      
           switch (message.command) {
-              case 'download':
-                const svgClone = svgEl.cloneNode(true);
-                svgClone.style.transform = '';
-                const svg = svgClone.outerHTML;
-                const blob = new Blob([svg], { type: "image/svg+xml" });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement("a");
-                link.href = url;
-                link.download = "prisma.svg";
-                link.click();
-                break;
+            case 'download':
+              const svgClone = svgEl.cloneNode(true);
+              svgClone.style.transform = '';
+              const svg = svgClone.outerHTML;
+              const blob = new Blob([svg], { type: "image/svg+xml" });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = "prisma.svg";
+              link.click();
+              break;
           }
       });
 			</script>
