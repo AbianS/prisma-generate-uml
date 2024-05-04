@@ -1,23 +1,15 @@
-/**
- * Renders the Data Model Language (DML) diagram for the given Data Model Metaformat (DMMF).
- * @param {object} dmmf - The Data Model Metaformat (DMMF) object.
- * @returns {string} The DML diagram as a string.
- */
-function renderDml(dmmf) {
+import { DMMF } from "@prisma/generator-helper"
+import vscode from "vscode"
+
+export function renderDml(dmmf: DMMF.Document) {
   const diagram = "erDiagram"
   const dml = dmmf.datamodel
-  const classes = generateClasses(dml.models)
-  const relationships = generateRelationships(dml.models)
+  const classes = generateClasses(dml.models as DMMF.Model[])
+  const relationships = generateRelationships(dml.models as DMMF.Model[])
   return diagram + "\n" + classes + "\n" + relationships
 }
 
-/**
- * Generates a string of classes based on the provided models.
- *
- * @param {Array} models - An array of models.
- * @returns {string} - A string of classes.
- */
-function generateClasses(models) {
+export function generateClasses(models: DMMF.Model[]) {
   return models
     .map((model) => {
       const fields = model.fields
@@ -36,62 +28,92 @@ function generateClasses(models) {
     .join("\n\n")
 }
 
-/**
- * Generates a string representation of relationships between models.
- * @param {Array} models - An array of model objects.
- * @returns {string} - A string representation of relationships between models.
- */
-function generateRelationships(models) {
-  // Initialize an array to store the relationships
-  const relationships = models.reduce((acc, model) => {
-    // Iterate through the models
-    const modelRelationships = model.fields.reduce((modelAcc, field) => {
-      if (field.relationFromFields && field.relationFromFields.length > 0) {
-        // If a field is a relationship, generate its string representation
-        const relationshipName = field.name
-        const thisSide = model.name
-        const otherSide = field.type
+export function generateRelationships(models: DMMF.Model[]) {
+  const explicitRelationships: string[] = models.reduce((acc, model) => {
+    const modelExplicitRelationships = model.fields.reduce(
+      (relationsAcc, field) => {
+        if (field.relationFromFields && field.relationFromFields.length > 0) {
+          // If a field is a relationship, generate its string representation
+          const relationshipName = field.relationName
+          const thisSide = model.name
+          const otherSide = field.type
 
-        // Determine the multiplicity on both sides of the relationship
-        let otherSideMultiplicity = field.isList
-          ? "}o"
-          : !field.isRequired
-          ? "|o"
-          : "||"
-        const otherModel = models.find((m) => m.name === otherSide)
-        const otherField = otherModel.fields.find(
-          ({ relationName }) => relationName === field.relationName,
-        )
+          // Determine the multiplicity on both sides of the relationship
+          let otherSideMultiplicity = field.isList
+            ? "}o"
+            : !field.isRequired
+            ? "|o"
+            : "||"
+          const otherModel = models.find((m) => m.name === otherSide)
+          const otherField = otherModel?.fields.find(
+            ({ relationName }) => relationName === field.relationName,
+          )
 
-        let thisSideMultiplicity = otherField.isList
-          ? "o{"
-          : !otherField.isRequired
-          ? "o|"
-          : "||"
+          let thisSideMultiplicity = otherField?.isList
+            ? "o{"
+            : !otherField?.isRequired
+            ? "o|"
+            : "||"
 
-        // Build the representation of the relationship and add it to the array
-        modelAcc.push(
-          `    ${thisSide} ${thisSideMultiplicity}--${otherSideMultiplicity} ${otherSide} : "${relationshipName}"`,
-        )
-      }
-      return modelAcc
-    }, [])
+          // Build the representation of the relationship and add it to the array
+          relationsAcc.push(
+            `    ${thisSide} ${thisSideMultiplicity}--${otherSideMultiplicity} ${otherSide} : "${relationshipName}"`,
+          )
+        }
+        return relationsAcc
+      },
+      [] as string[],
+    )
+    acc.push(...modelExplicitRelationships)
+    return acc
+  }, [] as string[])
 
-    // Combine the relationships from the current model with the accumulated relationships
-    return acc.concat(modelRelationships)
-  }, [])
+  const implicitRelationshipsCandidates = models.reduce(
+    (candidatesAcc, model) => {
+      model.fields.forEach((field) => {
+        // If the field is a relation, but it haven't a realtionFields, it is a candidate for an implicit relationship
+        if (
+          field.relationName &&
+          (!field.relationFromFields || field.relationFromFields.length === 0)
+        ) {
+          // Try to find another candidate with the same name
+          const anotherCandidateWithSameName = candidatesAcc.find(
+            (candidate) => candidate.name === field.relationName,
+          )
+          if (anotherCandidateWithSameName) {
+            // If there is already a candidate with the same name, it is a implicit relationship with this model
+            anotherCandidateWithSameName.to = model.name
+          } else {
+            // If there is no candidate with the same name, add this as a implicit relationship candidate
+            candidatesAcc.push({
+              from: model.name,
+              to: null,
+              name: field.relationName,
+            })
+          }
+        }
+      })
+      return candidatesAcc
+    },
+    [] as { from: string; to: string | null; name: string }[],
+  )
+
+  const implicitRelationships: string[] = implicitRelationshipsCandidates
+    .filter((candidates) => !!candidates.to)
+    .map((candidate) => {
+      // Determine the multiplicity on both sides of the relationship
+      const otherSideMultiplicity = "}o"
+      const thisSideMultiplicity = "o{"
+
+      // Build the representation of the relationship and add it to the array
+      return `    ${candidate.from} ${thisSideMultiplicity}--${otherSideMultiplicity} ${candidate.to} : "${candidate.name} (implicit)"`
+    })
 
   // Return all relationships as a string, joining each relationship with line breaks
-  return relationships.join("\n")
+  return explicitRelationships.concat(implicitRelationships).join("\n")
 }
 
-/**
- * Generates an HTML diagram with the given DML and script URI.
- * @param {string} dml - The DML to use for the diagram.
- * @param {any} scriptUri - The URI of the script to include in the HTML.
- * @returns {string} The generated HTML diagram.
- */
-function generateDiagram(dml, scriptUri) {
+export function generateDiagram(dml: string, scriptUri: vscode.Uri) {
   return `<!DOCTYPE html>
 	<html lang="en">
 		<head>
