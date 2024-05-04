@@ -52,8 +52,9 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile && npm run copy",
+    "vscode:prepublish": "npm run esbuild -- --minify && npm run copy",
     "copy": "shx cp node_modules/@prisma/prisma-schema-wasm/src/prisma_schema_build_bg.wasm dist/",
+    "esbuild": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
@@ -61,17 +62,17 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.83.0",
-    "@types/node": "18.x",
     "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.83.0",
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
-    "esbuild": "^0.19.5",
-    "shx": "^0.3.4",
-    "eslint": "^8.57.0",
-    "typescript": "^5.4.5",
     "@vscode/test-cli": "^0.0.8",
-    "@vscode/test-electron": "^2.3.9"
+    "@vscode/test-electron": "^2.3.9",
+    "esbuild": "^0.19.12",
+    "eslint": "^8.57.0",
+    "shx": "^0.3.4",
+    "typescript": "^5.4.5"
   },
   "dependencies": {
     "@prisma/internals": "^5.13.0"

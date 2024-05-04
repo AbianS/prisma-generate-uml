@@ -3,7 +3,7 @@ import vscode from "vscode"
 import { renderDml, generateDiagram } from "./core/render"
 import path from "path"
 
-function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext) {
   let panel: vscode.WebviewPanel
 
   const disposable = vscode.commands.registerCommand(
@@ -66,9 +66,4 @@ function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable, downloadDispoable)
 }
 
-function deactivate() {}
-
-module.exports = {
-  activate,
-  deactivate,
-}
+export function deactivate() {}

@@ -218,8 +218,3 @@ export function generateDiagram(dml: string, scriptUri: vscode.Uri) {
 	</html>
 	`
 }
-
-module.exports = {
-  renderDml,
-  generateDiagram,
-}
