@@ -1,6 +1,10 @@
 import { DMMF } from "@prisma/generator-helper"
 import vscode from "vscode"
 
+/**
+ * Renders the Data Model Language (DML) diagram for the given Data Model Metaformat (DMMF).
+ */
+
 export function renderDml(dmmf: DMMF.Document) {
   const diagram = "erDiagram"
   const dml = dmmf.datamodel
@@ -8,6 +12,10 @@ export function renderDml(dmmf: DMMF.Document) {
   const relationships = generateRelationships(dml.models as DMMF.Model[])
   return diagram + "\n" + classes + "\n" + relationships
 }
+
+/**
+ * Generates a string of classes based on the provided models.
+ */
 
 export function generateClasses(models: DMMF.Model[]) {
   return models
@@ -27,6 +35,10 @@ export function generateClasses(models: DMMF.Model[]) {
     })
     .join("\n\n")
 }
+
+/**
+ * Generates a string representation of relationships between models.
+ */
 
 export function generateRelationships(models: DMMF.Model[]) {
   const explicitRelationships: string[] = models.reduce((acc, model) => {
@@ -112,6 +124,10 @@ export function generateRelationships(models: DMMF.Model[]) {
   // Return all relationships as a string, joining each relationship with line breaks
   return explicitRelationships.concat(implicitRelationships).join("\n")
 }
+
+/**
+ * Generates an HTML diagram with the given DML and script URI.
+ */
 
 export function generateDiagram(dml: string, scriptUri: vscode.Uri) {
   return `<!DOCTYPE html>
