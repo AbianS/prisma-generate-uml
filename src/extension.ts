@@ -1,13 +1,10 @@
-const { getDMMF } = require("@prisma/internals")
-const vscode = require("vscode")
-const { renderDml, generateDiagram } = require("./core/render.js")
-const path = require("path")
+import { getDMMF } from "@prisma/internals"
+import vscode from "vscode"
+import { renderDml, generateDiagram } from "./core/render"
+import path from "path"
 
-/**
- * @param {vscode.ExtensionContext} context
- */
-function activate(context) {
-  let panel
+export function activate(context: vscode.ExtensionContext) {
+  let panel: vscode.WebviewPanel
 
   const disposable = vscode.commands.registerCommand(
     "prisma-generate-uml.generateUML",
@@ -69,9 +66,4 @@ function activate(context) {
   context.subscriptions.push(disposable, downloadDispoable)
 }
 
-function deactivate() {}
-
-module.exports = {
-  activate,
-  deactivate,
-}
+export function deactivate() {}
