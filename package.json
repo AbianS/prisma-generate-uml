@@ -2,7 +2,7 @@
   "name": "prisma-generate-uml",
   "displayName": "Prisma Generate UML",
   "description": "Generate UML Diagram from prisma schema",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "icon": "media/readme/logo.png",
   "repository": "https://github.com/AbianS/prisma-generate-uml",
   "publisher": "AbianS",
