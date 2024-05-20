@@ -130,6 +130,12 @@ export function generateRelationships(models: DMMF.Model[]) {
  */
 
 export function generateDiagram(dml: string, scriptUri: vscode.Uri) {
+  const isDarkTheme =
+    vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark ||
+    vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.HighContrast
+
+  const backgroundColor = isDarkTheme ? "#141414" : "#e0e0e0"
+
   return `<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -157,7 +163,7 @@ export function generateDiagram(dml: string, scriptUri: vscode.Uri) {
         }
       </style>
 		</head>
-		<body style="background-position: 0 0, 8px 8px; background-size: 16px 16px; background-image: linear-gradient(45deg, #141414 25%, transparent 25%, transparent 75%, #141414 75%, #141414), linear-gradient(45deg, #141414 25%, transparent 25%, transparent 75%, #141414 75%, #141414)">
+		<body style="background-position: 0 0, 8px 8px; background-size: 16px 16px; background-image: linear-gradient(45deg, ${backgroundColor} 25%, transparent 25%, transparent 75%, ${backgroundColor} 75%, ${backgroundColor}), linear-gradient(45deg, ${backgroundColor} 25%, transparent 25%, transparent 75%, ${backgroundColor} 75%, ${backgroundColor})">
       <div id="graphDiv"></div>
 			<script>
 				mermaid.initialize({
