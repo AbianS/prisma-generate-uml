@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
         const content = editor.document.getText()
 
         const response = await getDMMF({ datamodel: content })
-        const dml = renderDml(response)
+        const { nodes, links } = renderDml(response)
 
         panel = vscode.window.createWebviewPanel(
           "prismaEr",
@@ -34,12 +34,10 @@ export function activate(context: vscode.ExtensionContext) {
         )
 
         const scriptUri = panel.webview.asWebviewUri(
-          vscode.Uri.file(
-            path.join(context.extensionPath, "src/core/mermaid.js"),
-          ),
+          vscode.Uri.file(path.join(context.extensionPath, "src/core/go.js")),
         )
 
-        const svgContent = generateDiagram(dml, scriptUri)
+        const svgContent = generateDiagram(nodes, links, scriptUri)
 
         panel.webview.html = svgContent
 

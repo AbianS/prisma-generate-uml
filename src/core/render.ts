@@ -4,23 +4,21 @@ import vscode from "vscode"
 /**
  * Renders the Data Model Language (DML) diagram for the given Data Model Metaformat (DMMF).
  */
-
 export function renderDml(dmmf: DMMF.Document) {
-  const diagram = "erDiagram"
   const dml = dmmf.datamodel
-  const classes = generateClasses(dml.models as DMMF.Model[])
-  const relationships = generateRelationships(dml.models as DMMF.Model[])
-  return diagram + "\n" + classes + "\n" + relationships
+  const nodes = generateNodes(dml.models as DMMF.Model[])
+  const links = generateLinks(dml.models as DMMF.Model[])
+  return { nodes, links }
 }
 
 /**
- * Generates a string of classes based on the provided models.
+ * Generates nodes based on the provided models.
  */
-
-export function generateClasses(models: DMMF.Model[]) {
-  return models
-    .map((model) => {
-      const fields = model.fields
+export function generateNodes(models: DMMF.Model[]) {
+  return models.map((model) => {
+    return {
+      key: model.name,
+      fields: model.fields
         .filter(
           (field) =>
             field.kind !== "object" &&
@@ -29,107 +27,34 @@ export function generateClasses(models: DMMF.Model[]) {
                 relationFromFields && relationFromFields.includes(field.name),
             ),
         )
-        .map((field) => `    ${field.type} ${field.name}`)
-        .join("\n")
-      return `  ${model.name} {\n${fields}\n  }`
-    })
-    .join("\n\n")
+        .map((field) => ({ name: field.name, type: field.type })),
+    }
+  })
 }
 
 /**
- * Generates a string representation of relationships between models.
+ * Generates links based on the relationships between models.
  */
+export function generateLinks(models: DMMF.Model[]) {
+  const links: any = []
 
-export function generateRelationships(models: DMMF.Model[]) {
-  const explicitRelationships: string[] = models.reduce((acc, model) => {
-    const modelExplicitRelationships = model.fields.reduce(
-      (relationsAcc, field) => {
-        if (field.relationFromFields && field.relationFromFields.length > 0) {
-          // If a field is a relationship, generate its string representation
-          const relationshipName = field.relationName
-          const thisSide = model.name
-          const otherSide = field.type
-
-          // Determine the multiplicity on both sides of the relationship
-          let otherSideMultiplicity = field.isList
-            ? "}o"
-            : !field.isRequired
-            ? "|o"
-            : "||"
-          const otherModel = models.find((m) => m.name === otherSide)
-          const otherField = otherModel?.fields.find(
-            ({ relationName }) => relationName === field.relationName,
-          )
-
-          let thisSideMultiplicity = otherField?.isList
-            ? "o{"
-            : !otherField?.isRequired
-            ? "o|"
-            : "||"
-
-          // Build the representation of the relationship and add it to the array
-          relationsAcc.push(
-            `    ${thisSide} ${thisSideMultiplicity}--${otherSideMultiplicity} ${otherSide} : "${relationshipName}"`,
-          )
-        }
-        return relationsAcc
-      },
-      [] as string[],
-    )
-    acc.push(...modelExplicitRelationships)
-    return acc
-  }, [] as string[])
-
-  const implicitRelationshipsCandidates = models.reduce(
-    (candidatesAcc, model) => {
-      model.fields.forEach((field) => {
-        // If the field is a relation, but it haven't a realtionFields, it is a candidate for an implicit relationship
-        if (
-          field.relationName &&
-          (!field.relationFromFields || field.relationFromFields.length === 0)
-        ) {
-          // Try to find another candidate with the same name
-          const anotherCandidateWithSameName = candidatesAcc.find(
-            (candidate) => candidate.name === field.relationName,
-          )
-          if (anotherCandidateWithSameName) {
-            // If there is already a candidate with the same name, it is a implicit relationship with this model
-            anotherCandidateWithSameName.to = model.name
-          } else {
-            // If there is no candidate with the same name, add this as a implicit relationship candidate
-            candidatesAcc.push({
-              from: model.name,
-              to: null,
-              name: field.relationName,
-            })
-          }
-        }
-      })
-      return candidatesAcc
-    },
-    [] as { from: string; to: string | null; name: string }[],
-  )
-
-  const implicitRelationships: string[] = implicitRelationshipsCandidates
-    .filter((candidates) => !!candidates.to)
-    .map((candidate) => {
-      // Determine the multiplicity on both sides of the relationship
-      const otherSideMultiplicity = "}o"
-      const thisSideMultiplicity = "o{"
-
-      // Build the representation of the relationship and add it to the array
-      return `    ${candidate.from} ${thisSideMultiplicity}--${otherSideMultiplicity} ${candidate.to} : "${candidate.name} (implicit)"`
+  models.forEach((model) => {
+    model.fields.forEach((field) => {
+      if (field.relationFromFields && field.relationFromFields.length > 0) {
+        const from = model.name
+        const to = field.type
+        links.push({ from, to, text: field.relationName })
+      }
     })
+  })
 
-  // Return all relationships as a string, joining each relationship with line breaks
-  return explicitRelationships.concat(implicitRelationships).join("\n")
+  return links
 }
 
 /**
- * Generates an HTML diagram with the given DML and script URI.
+ * Generates an HTML diagram with the given nodes, links, and script URI.
  */
-
-export function generateDiagram(dml: string, scriptUri: vscode.Uri) {
+export function generateDiagram(nodes: any, links: any, scriptUri: vscode.Uri) {
   const isDarkTheme =
     vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark ||
     vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.HighContrast
@@ -137,106 +62,88 @@ export function generateDiagram(dml: string, scriptUri: vscode.Uri) {
   const backgroundColor = isDarkTheme ? "#141414" : "#e0e0e0"
 
   return `<!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<meta charset="UTF-8" />
-			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-			<meta http-equiv="Content-Security-Policy">
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta http-equiv="Content-Security-Policy">
 
-			<script
-				src="${scriptUri}"
-			></script>
+      <script src="${scriptUri}"></script>
       <style>
-        body {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          overflow: hidden;
-          margin: 0;
-        }
-        svg {
-          transform-origin: center;
-          position: relative;
-          cursor: grab;
-          user-select: none;
-        }
+          body {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              overflow: hidden;
+              margin: 0;
+          }
+          #myDiagramDiv {
+              width: 100%;
+              height: 100%;
+              background: ${backgroundColor};
+          }
       </style>
-		</head>
-		<body style="background-position: 0 0, 8px 8px; background-size: 16px 16px; background-image: linear-gradient(45deg, ${backgroundColor} 25%, transparent 25%, transparent 75%, ${backgroundColor} 75%, ${backgroundColor}), linear-gradient(45deg, ${backgroundColor} 25%, transparent 25%, transparent 75%, ${backgroundColor} 75%, ${backgroundColor})">
-      <div id="graphDiv"></div>
-			<script>
-				mermaid.initialize({
-					startOnLoad: false,
-				});
-        
-				const graphDiv = document.getElementById("graphDiv");
-				const svgId = "mermaid-svg";
+  </head>
+  <body>
+      <div id="myDiagramDiv"></div>
+      <script>
+          function init() {
+              const $ = go.GraphObject.make;  // for conciseness in defining templates
 
-				mermaid.mermaidAPI.render(
-					svgId,
-					\`${dml}\`,
-					(svg) => (graphDiv.innerHTML = svg)
-				);
-				const svgEl = document.getElementById(svgId);
-				svgEl.setAttribute("height", undefined);
-				svgEl.setAttribute("width", undefined);
+              const myDiagram = $(go.Diagram, "myDiagramDiv", {
+                  "undoManager.isEnabled": true  // enable undo & redo
+              });
 
-        let scale = 1;
-        let isPanning = false;
-        let startX = 0, startY = 0;
-        svgEl.addEventListener('mousedown', function(e) {
-          if(e.button === 0) { // Left mouse button
-            isPanning = true;
-            startX = e.clientX - parseInt(svgEl.style.left || 0);
-            startY = e.clientY - parseInt(svgEl.style.top || 0);
+              // Define a template for database tables
+              myDiagram.nodeTemplate =
+                  $(go.Node, "Auto",
+                      $(go.Shape, "RoundedRectangle",
+                          { fill: "white", strokeWidth: 1, stroke: "black" }
+                      ),
+                      $(go.Panel, "Vertical",
+                          $(go.TextBlock,
+                              { margin: 8, font: "bold 12pt sans-serif" },
+                              new go.Binding("text", "key")
+                          ),
+                          $(go.Panel, "Table",
+                              { defaultAlignment: go.Spot.Left, margin: 4 },
+                              $(go.RowColumnDefinition, { column: 0, width: 100 }),
+                              new go.Binding("itemArray", "fields"),
+                              {
+                                  itemTemplate:
+                                      $(go.Panel, "TableRow",
+                                          $(go.TextBlock, { column: 0, margin: new go.Margin(0, 2) },
+                                              new go.Binding("text", "name")
+                                          ),
+                                          $(go.TextBlock, { column: 1, margin: new go.Margin(0, 2) },
+                                              new go.Binding("text", "type")
+                                          )
+                                      )
+                              }
+                          )
+                      )
+                  );
+
+              // Define a template for relationships
+              myDiagram.linkTemplate =
+                  $(go.Link,
+                      { routing: go.Link.AvoidsNodes, corner: 5 },
+                      $(go.Shape),  // the link's path shape
+                      $(go.Shape, { toArrow: "Standard" }),
+                      $(go.TextBlock, { segmentIndex: 2, segmentFraction: 0.5, margin: 4 },
+                          new go.Binding("text", "text")
+                      )
+                  );
+
+              // Create the model data
+              const nodeDataArray = ${JSON.stringify(nodes)};
+              const linkDataArray = ${JSON.stringify(links)};
+              myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
           }
-        });
-        window.addEventListener('mousemove', function(e) {
-          if(isPanning && scale > 1) {
-            svgEl.style.left = \`\${e.clientX - startX}px\`;
-            svgEl.style.top = \`\${e.clientY - startY}px\`;
-          }
-        });
-        window.addEventListener('mouseup', function(e) {
-          if(e.button === 0) { // Left mouse button
-            isPanning = false;
-          }
-        });
-        document.body.addEventListener('wheel', function(e) {
-          e.preventDefault();
-          let oldScale = scale;
-          scale += e.deltaY * -0.005;
-          scale = Math.min(Math.max(1, scale), 20);
-          svgEl.style.transform = \`scale(\${scale})\`;
-          if (scale > 1) {
-            // Zoom in: do not center the image
-            svgEl.style.left = \`\${parseInt(svgEl.style.left || 0) / oldScale * scale}px\`;
-            svgEl.style.top = \`\${parseInt(svgEl.style.top || 0) / oldScale * scale}px\`;
-          } else {
-            // Zoom out: center the image
-            svgEl.style.left = '0px';
-            svgEl.style.top = '0px';
-          }
-        });
-        window.addEventListener('message', event => {
-          const message = event.data; // The JSON data our extension sent
-          switch (message.command) {
-            case 'download':
-              const svgClone = svgEl.cloneNode(true);
-              svgClone.style.transform = '';
-              const svg = svgClone.outerHTML;
-              const blob = new Blob([svg], { type: "image/svg+xml" });
-              const url = URL.createObjectURL(blob);
-              const link = document.createElement("a");
-              link.href = url;
-              link.download = "prisma.svg";
-              link.click();
-              break;
-          }
-      });
-			</script>
-		</body>
-	</html>
-	`
+
+          document.addEventListener('DOMContentLoaded', init);
+      </script>
+  </body>
+  </html>`
 }
