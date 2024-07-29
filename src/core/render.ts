@@ -94,10 +94,13 @@ export function generateDiagram(nodes: any, links: any, scriptUri: vscode.Uri) {
   <body>
       <div id="myDiagramDiv"></div>
       <script>
+
+          let myDiagram;
+
           function init() {
               const $ = go.GraphObject.make;  // for conciseness in defining templates
 
-              const myDiagram = $(go.Diagram, "myDiagramDiv", {
+              myDiagram = $(go.Diagram, "myDiagramDiv", {
                   "undoManager.isEnabled": true
               });
 
@@ -148,6 +151,22 @@ export function generateDiagram(nodes: any, links: any, scriptUri: vscode.Uri) {
               myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
           }
 
+          window.addEventListener('message', event => {
+          const message = event.data; // The JSON data our extension sent
+          switch (message.command) {
+            case 'download':
+              const svgClone = myDiagram.makeSvg({ scale: 1});
+              svgClone.style.transform = '';
+              const svg = svgClone.outerHTML;
+              const blob = new Blob([svg], { type: "image/svg+xml" });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = "prisma.svg";
+              link.click();
+              break;
+              }
+            });
           document.addEventListener('DOMContentLoaded', init);
       </script>
   </body>
