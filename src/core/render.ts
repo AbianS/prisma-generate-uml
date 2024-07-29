@@ -61,6 +61,10 @@ export function generateDiagram(nodes: any, links: any, scriptUri: vscode.Uri) {
 
   const backgroundColor = isDarkTheme ? "#141414" : "#e0e0e0"
 
+  const backgroundImage = `linear-gradient(45deg, ${backgroundColor} 25%, transparent 25%, transparent 75%, ${backgroundColor} 75%, ${backgroundColor}), linear-gradient(45deg, ${backgroundColor} 25%, transparent 25%, transparent 75%, ${backgroundColor} 75%, ${backgroundColor})`
+  const backgroundSize = "16px 16px"
+  const backgroundPosition = "0 0, 8px 8px"
+
   return `<!DOCTYPE html>
   <html lang="en">
   <head>
@@ -81,7 +85,9 @@ export function generateDiagram(nodes: any, links: any, scriptUri: vscode.Uri) {
           #myDiagramDiv {
               width: 100%;
               height: 100%;
-              background: ${backgroundColor};
+              background-position: ${backgroundPosition};
+              background-size: ${backgroundSize};
+              background-image: ${backgroundImage};
           }
       </style>
   </head>
@@ -92,7 +98,7 @@ export function generateDiagram(nodes: any, links: any, scriptUri: vscode.Uri) {
               const $ = go.GraphObject.make;  // for conciseness in defining templates
 
               const myDiagram = $(go.Diagram, "myDiagramDiv", {
-                  "undoManager.isEnabled": true  // enable undo & redo
+                  "undoManager.isEnabled": true
               });
 
               // Define a template for database tables
