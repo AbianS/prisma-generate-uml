@@ -1,4 +1,4 @@
-import { getDMMF } from "@prisma/internals"
+import { getDMMF, getSchemaWithPath } from "@prisma/internals"
 import vscode from "vscode"
 import { renderDml, generateDiagram } from "./core/render"
 import path from "path"
@@ -12,9 +12,39 @@ export function activate(context: vscode.ExtensionContext) {
       const editor = vscode.window.activeTextEditor
 
       if (editor && editor.document.languageId === "prisma") {
-        const content = editor.document.getText()
+        const currentFileUri = editor.document.uri
+        const folderUri = vscode.Uri.joinPath(currentFileUri, "..")
 
-        const response = await getDMMF({ datamodel: content })
+        let response: Awaited<ReturnType<typeof getDMMF>> | null = null
+        try {
+          const schemaResultFromFile = await getSchemaWithPath(
+            currentFileUri.fsPath,
+          )
+          response = await getDMMF({ datamodel: schemaResultFromFile.schemas })
+        } catch (err) {
+          console.error(
+            `[prisma-generate-uml] Tried reading schema from file: ${err}`,
+          )
+        }
+
+        if (!response) {
+          try {
+            const schemaResultFromDir = await getSchemaWithPath(
+              folderUri.fsPath,
+            )
+
+            response = await getDMMF({ datamodel: schemaResultFromDir.schemas })
+          } catch (err) {
+            console.error(
+              `[prisma-generate-uml] Tried reading schema from directory: ${err}`,
+            )
+          }
+        }
+
+        if (!response) {
+          throw new Error("no schema found")
+        }
+
         const dml = renderDml(response)
 
         panel = vscode.window.createWebviewPanel(
