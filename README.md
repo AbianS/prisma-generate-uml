@@ -1,5 +1,30 @@
-# Prisma Generate UML
-![Banner](media/readme/banner.jpg)
+<br />
+<p align="center">
+    <a href="#" target="_blank"><img src="./media/readme/banner.jpg" alt="logo"></a>
+    <br />
+    <br />
+    <b>Prisma Generate UML</b> is a VSCode extension that quickly creates UML diagrams from Prisma schemas with a single click, offering easy visualization and SVG downloads.
+    <br />
+    <br />
+</p>
+
+> _You can download final bundles from the [Releases](https://github.com/AbianS/prisma-generate-uml/releases) section._
+
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white) ![Prisma ORM](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white) ![esbuild](https://img.shields.io/badge/esbuild-FFCF00?style=for-the-badge&logo=esbuild&logoColor=white) ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
+
+> [!NOTE]
+> 🚧
+> **Prisma Generate UML** is currently under development. Stay tuned for more updates!
+
+## ✨ Features
+
+- 🔥 **Instant UML Diagrams**: Generate UML diagrams from Prisma schemas with a single click.
+- 🖼 **Easy Visualization**: Simplify data architecture visualization in an exciting way.
+- 💾 **SVG Downloads**: Download UML diagrams in SVG format effortlessly.
+- 🛠 **Seamless Integration**: Works seamlessly within VSCode, no extra configuration required.
+- 📂 **Multi-file Prisma Schema Support**: We fully support Prisma's `prismaSchemaFolder` feature, allowing you to split your schema into multiple files while still generating a complete UML diagram of your entire database.
+
+## 🔍 What It Does
 
 Get ready to breathe life into your data models! ✨ With our extension, creating UML diagrams from your Prisma files is as easy as it gets.
 
@@ -11,9 +36,7 @@ Transform your Prisma definitions into a stunning UML diagram with ease and dive
 
 ![Example](media/readme/example.gif)
 
-
-
-## How to Use
+## 🚀 How to Use
 
 Generate UML diagrams with a single click:
 
@@ -25,7 +48,7 @@ Simplify data architecture visualization in an exciting way! 🚀
 
 ![usage](media/readme/usage.jpg)
 
-## Download the UML Diagram
+## 💾 Download the UML Diagram
 
 Download your UML diagram in SVG format effortlessly:
 
