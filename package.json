@@ -34,6 +34,10 @@
           "light": "./media/download_light.svg",
           "dark": "./media/download_dark.svg"
         }
+      },
+      {
+        "command": "hello-world.showHelloWorld",
+        "title": "Hello World (React + Vite): Show"
       }
     ],
     "menus": {
@@ -52,6 +56,9 @@
     }
   },
   "scripts": {
+    "install:all": "npm install && cd webview-ui && npm install",
+    "start:webview": "cd webview-ui && npm run dev",
+    "build:webview": "cd webview-ui && npm run build",
     "vscode:prepublish": "npm run esbuild -- --minify && npm run copy",
     "copy": "shx cp node_modules/@prisma/prisma-schema-wasm/src/prisma_schema_build_bg.wasm dist/",
     "esbuild": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",

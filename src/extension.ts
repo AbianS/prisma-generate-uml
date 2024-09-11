@@ -1,10 +1,22 @@
 import { getDMMF, getSchemaWithPath } from "@prisma/internals"
-import vscode from "vscode"
-import { renderDml, generateDiagram } from "./core/render"
-import path from "path"
+import vscode, { commands } from "vscode"
+
+import { HelloWorldPanel } from "./panels/HelloWorldPanel"
+import { PrismaUMLPanel } from "./panels/prisma-uml-panel"
+import { transformDmmfToModelsAndConnections } from "./core/render"
 
 export function activate(context: vscode.ExtensionContext) {
   let panel: vscode.WebviewPanel
+
+  const showHelloWorldCommand = commands.registerCommand(
+    "hello-world.showHelloWorld",
+    () => {
+      HelloWorldPanel.render(context.extensionUri)
+    },
+  )
+
+  // Add command to the extension context
+  context.subscriptions.push(showHelloWorldCommand)
 
   const disposable = vscode.commands.registerCommand(
     "prisma-generate-uml.generateUML",
@@ -23,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
           response = await getDMMF({ datamodel: schemaResultFromFile.schemas })
         } catch (err) {
           console.error(
-            `[prisma-generate-uml] Tried reading schema from file: ${err}`,
+            `[prisma-generate-uml] Error al leer el esquema desde archivo: ${err}`,
           )
         }
 
@@ -32,53 +44,25 @@ export function activate(context: vscode.ExtensionContext) {
             const schemaResultFromDir = await getSchemaWithPath(
               folderUri.fsPath,
             )
-
             response = await getDMMF({ datamodel: schemaResultFromDir.schemas })
           } catch (err) {
             console.error(
-              `[prisma-generate-uml] Tried reading schema from directory: ${err}`,
+              `[prisma-generate-uml] Error al leer el esquema desde directorio: ${err}`,
             )
           }
         }
 
         if (!response) {
-          throw new Error("no schema found")
+          throw new Error("No se encontró ningún esquema")
         }
 
-        const dml = renderDml(response)
+        const { models, connections } =
+          transformDmmfToModelsAndConnections(response)
 
-        panel = vscode.window.createWebviewPanel(
-          "prismaEr",
-          "Prisma Schema UML",
-          vscode.ViewColumn.Two,
-          {
-            enableScripts: true,
-            localResourceRoots: [
-              vscode.Uri.file(path.join(context.extensionPath, "src/core")),
-            ],
-          },
-        )
-
-        panel.iconPath = vscode.Uri.file(
-          path.join(context.extensionPath, "media/uml.svg"),
-        )
-
-        const scriptUri = panel.webview.asWebviewUri(
-          vscode.Uri.file(
-            path.join(context.extensionPath, "src/core/mermaid.js"),
-          ),
-        )
-
-        const svgContent = generateDiagram(dml, scriptUri)
-
-        panel.webview.html = svgContent
-
-        if (panel.active) {
-          vscode.commands.executeCommand("setContext", "prismaIsFocused", true)
-        }
+        PrismaUMLPanel.render(context.extensionUri, models, connections)
       } else {
         vscode.window.showInformationMessage(
-          "Open a .prisma file to use this command",
+          "Abre un archivo .prisma para usar este comando",
         )
       }
     },
