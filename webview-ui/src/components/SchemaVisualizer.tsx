@@ -3,6 +3,7 @@ import ReactFlow, {
   BackgroundVariant,
   Controls,
   Edge,
+  MiniMap,
   Node,
 } from "reactflow"
 import { useTheme } from "../lib/contexts/theme"
@@ -63,6 +64,13 @@ export const SchemaVisualizer = ({ connections, models }: Props) => {
     }
   })
 
+  // Definir colores según el tema
+  const nodeColor = isDarkMode ? "#3d5797" : "#8b9dc3" // Color de los nodos
+  const nodeStrokeColor = isDarkMode ? "#282828" : "#e0e0e0" // Color del borde de los nodos
+  const maskColor = isDarkMode
+    ? "rgba(0, 0, 0, 0.2)"
+    : "rgba(255, 255, 255, 0.5)" // Color de la máscara
+
   return (
     <div
       className={`h-[100vh] w-full ${
@@ -79,11 +87,21 @@ export const SchemaVisualizer = ({ connections, models }: Props) => {
           padding: 0.4,
         }}
       >
+        <Controls />
+        <MiniMap
+          nodeStrokeWidth={3}
+          zoomable
+          pannable
+          nodeColor={nodeColor}
+          nodeStrokeColor={nodeStrokeColor}
+          maskColor={maskColor}
+          className={isDarkMode ? "bg-[#1c1c1c]" : "bg-[#e0e0e0]"}
+        />
+
         <Background
           color={isDarkMode ? "#222" : "#ccc"}
           variant={BackgroundVariant.Lines}
         />
-        <Controls />
       </ReactFlow>
     </div>
   )
