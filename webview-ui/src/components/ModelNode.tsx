@@ -4,9 +4,12 @@ import { Model } from "../lib/types/schema"
 export const ModelNode = ({ data }: NodeProps<Model>) => {
   return (
     <div className="rounded-lg min-w-[250px]">
-      {/* Renderiza el handle de destino */}
       {data.isChild && (
-        <Handle id={data.name} position={Position.Top} type="target" />
+        <Handle
+          id={`${data.name}-target`}
+          position={Position.Top}
+          type="target"
+        />
       )}
       <div className="p-1 text-center rounded-t-lg rounded-b-none bg-[#3d5797]">
         <p className="font-bold text-white">
@@ -29,7 +32,7 @@ export const ModelNode = ({ data }: NodeProps<Model>) => {
           {hasConnections && (
             <Handle
               position={Position.Right}
-              id={`${data.name}-${name}`} // Asegúrate de que coincida con el sourceHandle
+              id={`${data.name}-${name}-source`}
               type="source"
               style={{
                 top: 27 + 16 + 27 * index,

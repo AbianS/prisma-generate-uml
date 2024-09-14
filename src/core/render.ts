@@ -38,7 +38,7 @@ export function generateModels(models: readonly DMMF.Model[]): Model[] {
     name: model.name,
     fields: model.fields.map((field) => ({
       name: field.name,
-      type: field.type,
+      type: field.isList ? `${field.type}[]` : field.type,
       hasConnections:
         field.kind === "object" || (field.relationFromFields?.length ?? 0) > 0,
     })),
@@ -58,7 +58,6 @@ export function generateModelConnections(
 
   models.forEach((model) => {
     model.fields.forEach((field) => {
-      // Busca conexiones basadas en field.type
       const targetModelName = field.type
       const connectionName = field.relationName || field.name
 
@@ -69,9 +68,9 @@ export function generateModelConnections(
 
       if (isConnectedToOtherModel) {
         connections.push({
-          source: model.name,
-          target: targetModelName,
-          name: connectionName, // Usamos el nombre de la conexión o el nombre del campo
+          source: `${model.name}-${field.name}-source`, // Cambiar el id del source handle
+          target: `${targetModelName}-target`, // Cambiar el id del target handle
+          name: connectionName,
         })
       }
     })

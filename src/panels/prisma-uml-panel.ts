@@ -56,7 +56,7 @@ export class PrismaUMLPanel {
       const panel = window.createWebviewPanel(
         "prismaUML",
         "Prisma Schema UML",
-        ViewColumn.One,
+        ViewColumn.Two,
         {
           enableScripts: true,
           localResourceRoots: [

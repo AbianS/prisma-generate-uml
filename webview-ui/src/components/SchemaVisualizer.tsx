@@ -50,14 +50,12 @@ export const SchemaVisualizer = ({ connections, models }: Props) => {
     }
   })
   const edges: Edge[] = connections.map((connection) => {
-    const sourceId = `${connection.source}-${connection.name}`
-    const targetId = `${connection.target}-${connection.name}`
     return {
-      id: `${connection.source}-${connection.target}-${connection.name}`,
-      source: connection.source,
-      target: connection.target,
-      sourceHandle: sourceId, // Coincide con el handle en ModelNode
-      targetHandle: targetId, // Coincide con el handle en ModelNode
+      id: `${connection.source}-${connection.target}`,
+      source: connection.source.split("-")[0],
+      target: connection.target.split("-")[0],
+      sourceHandle: connection.source,
+      targetHandle: connection.target,
       animated: true,
     }
   })
@@ -67,6 +65,7 @@ export const SchemaVisualizer = ({ connections, models }: Props) => {
       <ReactFlow
         defaultNodes={nodes}
         defaultEdges={edges}
+        minZoom={0.1}
         fitView
         nodeTypes={modelTypes}
         fitViewOptions={{

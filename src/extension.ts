@@ -1,22 +1,11 @@
 import { getDMMF, getSchemaWithPath } from "@prisma/internals"
-import vscode, { commands } from "vscode"
+import vscode from "vscode"
 
-import { HelloWorldPanel } from "./panels/HelloWorldPanel"
-import { PrismaUMLPanel } from "./panels/prisma-uml-panel"
 import { transformDmmfToModelsAndConnections } from "./core/render"
+import { PrismaUMLPanel } from "./panels/prisma-uml-panel"
 
 export function activate(context: vscode.ExtensionContext) {
   let panel: vscode.WebviewPanel
-
-  const showHelloWorldCommand = commands.registerCommand(
-    "hello-world.showHelloWorld",
-    () => {
-      HelloWorldPanel.render(context.extensionUri)
-    },
-  )
-
-  // Add command to the extension context
-  context.subscriptions.push(showHelloWorldCommand)
 
   const disposable = vscode.commands.registerCommand(
     "prisma-generate-uml.generateUML",
