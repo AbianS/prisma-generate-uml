@@ -5,6 +5,7 @@ import ReactFlow, {
   Edge,
   Node,
 } from "reactflow"
+import { useTheme } from "../lib/contexts/theme"
 import { Model, ModelConnection } from "../lib/types/schema"
 import { ModelNode } from "./ModelNode"
 
@@ -14,6 +15,8 @@ interface Props {
 }
 
 export const SchemaVisualizer = ({ connections, models }: Props) => {
+  const { isDarkMode } = useTheme()
+
   const modelTypes = {
     model: ModelNode,
   }
@@ -61,7 +64,11 @@ export const SchemaVisualizer = ({ connections, models }: Props) => {
   })
 
   return (
-    <div className="h-[100vh] w-full bg-[#1c1c1c] ">
+    <div
+      className={`h-[100vh] w-full ${
+        isDarkMode ? "bg-[#1c1c1c]" : "bg-[#e0e0e0]"
+      }`}
+    >
       <ReactFlow
         defaultNodes={nodes}
         defaultEdges={edges}
@@ -72,7 +79,10 @@ export const SchemaVisualizer = ({ connections, models }: Props) => {
           padding: 0.4,
         }}
       >
-        <Background color="#222" variant={BackgroundVariant.Lines} />
+        <Background
+          color={isDarkMode ? "#222" : "#ccc"}
+          variant={BackgroundVariant.Lines}
+        />
         <Controls />
       </ReactFlow>
     </div>

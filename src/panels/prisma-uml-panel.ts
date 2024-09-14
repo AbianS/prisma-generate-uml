@@ -33,11 +33,20 @@ export class PrismaUMLPanel {
       extensionUri,
     )
 
+    // Icono del panel
+    this._panel.iconPath = Uri.joinPath(extensionUri, "media/uml.svg")
+
     // Modificación: Enviar los modelos y conexiones al webview
     this._panel.webview.postMessage({
       command: "setData",
       models,
       connections,
+    })
+
+    // Modificación: Enviar si es dark mode o light mode
+    this._panel.webview.postMessage({
+      command: "setTheme",
+      theme: window.activeColorTheme.kind,
     })
 
     // Escuchar mensajes desde el webview
