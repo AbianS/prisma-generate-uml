@@ -7,19 +7,22 @@ import ReactFlow, {
   Node,
 } from "reactflow"
 import { useTheme } from "../lib/contexts/theme"
-import { Model, ModelConnection } from "../lib/types/schema"
+import { Enum, Model, ModelConnection } from "../lib/types/schema"
 import { ModelNode } from "./ModelNode"
+import { EnumNode } from "./EnumNode"
 
 interface Props {
   models: Model[]
   connections: ModelConnection[]
+  enums: Enum[]
 }
 
-export const SchemaVisualizer = ({ connections, models }: Props) => {
+export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
   const { isDarkMode } = useTheme()
 
   const modelTypes = {
     model: ModelNode,
+    enum: EnumNode,
   }
 
   let row = 0
@@ -35,7 +38,7 @@ export const SchemaVisualizer = ({ connections, models }: Props) => {
     numGrid++
   }
 
-  const nodes: Node[] = models.map((model, index) => {
+  const modelNodes: Node[] = models.map((model, index) => {
     const x = row * 300
     const y = column * 300
 
@@ -53,6 +56,26 @@ export const SchemaVisualizer = ({ connections, models }: Props) => {
       type: "model",
     }
   })
+
+  const enumNodes: Node[] = enums.map((enumItem, index) => {
+    const x = row * 300
+    const y = column * 300
+
+    if (numGrid % (models.length + index) === 0) {
+      column = 0
+      row += 1
+    } else {
+      column += 1
+    }
+
+    return {
+      id: enumItem.name,
+      data: enumItem,
+      position: { x, y },
+      type: "enum",
+    }
+  })
+
   const edges: Edge[] = connections.map((connection) => {
     return {
       id: `${connection.source}-${connection.target}`,
@@ -64,12 +87,11 @@ export const SchemaVisualizer = ({ connections, models }: Props) => {
     }
   })
 
-  // Definir colores según el tema
-  const nodeColor = isDarkMode ? "#3d5797" : "#8b9dc3" // Color de los nodos
-  const nodeStrokeColor = isDarkMode ? "#282828" : "#e0e0e0" // Color del borde de los nodos
+  const nodeColor = isDarkMode ? "#3d5797" : "#8b9dc3"
+  const nodeStrokeColor = isDarkMode ? "#282828" : "#e0e0e0"
   const maskColor = isDarkMode
     ? "rgba(0, 0, 0, 0.2)"
-    : "rgba(255, 255, 255, 0.5)" // Color de la máscara
+    : "rgba(255, 255, 255, 0.5)"
 
   return (
     <div
@@ -78,7 +100,7 @@ export const SchemaVisualizer = ({ connections, models }: Props) => {
       }`}
     >
       <ReactFlow
-        defaultNodes={nodes}
+        defaultNodes={[...modelNodes, ...enumNodes]}
         defaultEdges={edges}
         minZoom={0.1}
         fitView

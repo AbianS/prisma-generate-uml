@@ -14,6 +14,11 @@ export type ModelConnection = {
   name: string
 }
 
+export type Enum = {
+  name: string
+  values: string[]
+}
+
 export enum ColorThemeKind {
   Light = 1,
   Dark = 2,

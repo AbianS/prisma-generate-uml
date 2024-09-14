@@ -45,10 +45,10 @@ export function activate(context: vscode.ExtensionContext) {
           throw new Error("No se encontró ningún esquema")
         }
 
-        const { models, connections } =
+        const { models, connections, enums } =
           transformDmmfToModelsAndConnections(response)
 
-        PrismaUMLPanel.render(context.extensionUri, models, connections)
+        PrismaUMLPanel.render(context.extensionUri, models, connections, enums)
       } else {
         vscode.window.showInformationMessage(
           "Abre un archivo .prisma para usar este comando",

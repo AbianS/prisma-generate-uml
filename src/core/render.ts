@@ -10,6 +10,11 @@ export type Model = {
   isChild?: boolean
 }
 
+export type Enum = {
+  name: string
+  values: string[]
+}
+
 export type ModelConnection = {
   target: string
   source: string
@@ -22,12 +27,14 @@ export type ModelConnection = {
  */
 export function transformDmmfToModelsAndConnections(dmmf: DMMF.Document): {
   models: Model[]
+  enums: Enum[]
   connections: ModelConnection[]
 } {
   const models = generateModels(dmmf.datamodel.models)
+  const enums = generateEnums(dmmf.datamodel.enums)
   const connections = generateModelConnections(dmmf.datamodel.models)
 
-  return { models, connections }
+  return { models, enums, connections }
 }
 
 /**
@@ -45,6 +52,13 @@ export function generateModels(models: readonly DMMF.Model[]): Model[] {
     isChild: model.fields.some(
       (field) => field.relationFromFields?.length ?? 0 > 0,
     ),
+  }))
+}
+
+export function generateEnums(enums: readonly DMMF.DatamodelEnum[]): Enum[] {
+  return enums.map((enumItem) => ({
+    name: enumItem.name,
+    values: enumItem.values.map((v) => v.name),
   }))
 }
 

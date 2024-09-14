@@ -8,7 +8,7 @@ import {
 } from "vscode"
 import { getUri } from "../utilities/getUri"
 import { getNonce } from "../utilities/getNonce"
-import { Model, ModelConnection } from "../core/render"
+import { Enum, Model, ModelConnection } from "../core/render"
 
 export class PrismaUMLPanel {
   public static currentPanel: PrismaUMLPanel | undefined
@@ -21,6 +21,7 @@ export class PrismaUMLPanel {
     extensionUri: Uri,
     models: Model[],
     connections: ModelConnection[],
+    enums: Enum[],
   ) {
     this._panel = panel
 
@@ -41,6 +42,7 @@ export class PrismaUMLPanel {
       command: "setData",
       models,
       connections,
+      enums,
     })
 
     // Modificación: Enviar si es dark mode o light mode
@@ -58,6 +60,7 @@ export class PrismaUMLPanel {
     extensionUri: Uri,
     models: Model[],
     connections: ModelConnection[],
+    enums: Enum[],
   ) {
     if (PrismaUMLPanel.currentPanel) {
       PrismaUMLPanel.currentPanel._panel.reveal(ViewColumn.One)
@@ -79,6 +82,7 @@ export class PrismaUMLPanel {
         extensionUri,
         models,
         connections,
+        enums,
       )
     }
   }
