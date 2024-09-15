@@ -2,7 +2,7 @@
   "name": "prisma-generate-uml",
   "displayName": "Prisma Generate UML",
   "description": "Generate UML Diagram from prisma schema",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "icon": "media/readme/logo.png",
   "repository": "https://github.com/AbianS/prisma-generate-uml",
   "publisher": "AbianS",
@@ -28,12 +28,8 @@
         }
       },
       {
-        "command": "prisma-generate-uml.download",
-        "title": "Download SVG",
-        "icon": {
-          "light": "./media/download_light.svg",
-          "dark": "./media/download_dark.svg"
-        }
+        "command": "hello-world.showHelloWorld",
+        "title": "Hello World (React + Vite): Show"
       }
     ],
     "menus": {
@@ -42,16 +38,14 @@
           "when": "editorLangId == prisma",
           "command": "prisma-generate-uml.generateUML",
           "group": "navigation"
-        },
-        {
-          "command": "prisma-generate-uml.download",
-          "group": "navigation",
-          "when": "prismaIsFocused && !editorLangId"
         }
       ]
     }
   },
   "scripts": {
+    "install:all": "npm install && cd webview-ui && npm install",
+    "start:webview": "cd webview-ui && npm run dev",
+    "build:webview": "cd webview-ui && npm run build",
     "vscode:prepublish": "npm run esbuild -- --minify && npm run copy",
     "copy": "shx cp node_modules/@prisma/prisma-schema-wasm/src/prisma_schema_build_bg.wasm dist/",
     "esbuild": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",

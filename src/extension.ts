@@ -1,11 +1,10 @@
 import { getDMMF, getSchemaWithPath } from "@prisma/internals"
 import vscode from "vscode"
-import { renderDml, generateDiagram } from "./core/render"
-import path from "path"
+
+import { transformDmmfToModelsAndConnections } from "./core/render"
+import { PrismaUMLPanel } from "./panels/prisma-uml-panel"
 
 export function activate(context: vscode.ExtensionContext) {
-  let panel: vscode.WebviewPanel
-
   const disposable = vscode.commands.registerCommand(
     "prisma-generate-uml.generateUML",
     async () => {
@@ -32,7 +31,6 @@ export function activate(context: vscode.ExtensionContext) {
             const schemaResultFromDir = await getSchemaWithPath(
               folderUri.fsPath,
             )
-
             response = await getDMMF({ datamodel: schemaResultFromDir.schemas })
           } catch (err) {
             console.error(
@@ -45,37 +43,10 @@ export function activate(context: vscode.ExtensionContext) {
           throw new Error("no schema found")
         }
 
-        const dml = renderDml(response)
+        const { models, connections, enums } =
+          transformDmmfToModelsAndConnections(response)
 
-        panel = vscode.window.createWebviewPanel(
-          "prismaEr",
-          "Prisma Schema UML",
-          vscode.ViewColumn.Two,
-          {
-            enableScripts: true,
-            localResourceRoots: [
-              vscode.Uri.file(path.join(context.extensionPath, "src/core")),
-            ],
-          },
-        )
-
-        panel.iconPath = vscode.Uri.file(
-          path.join(context.extensionPath, "media/uml.svg"),
-        )
-
-        const scriptUri = panel.webview.asWebviewUri(
-          vscode.Uri.file(
-            path.join(context.extensionPath, "src/core/mermaid.js"),
-          ),
-        )
-
-        const svgContent = generateDiagram(dml, scriptUri)
-
-        panel.webview.html = svgContent
-
-        if (panel.active) {
-          vscode.commands.executeCommand("setContext", "prismaIsFocused", true)
-        }
+        PrismaUMLPanel.render(context.extensionUri, models, connections, enums)
       } else {
         vscode.window.showInformationMessage(
           "Open a .prisma file to use this command",
@@ -84,16 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
     },
   )
 
-  const downloadDispoable = vscode.commands.registerCommand(
-    "prisma-generate-uml.download",
-    () => {
-      if (panel) {
-        panel.webview.postMessage({ command: "download" })
-      }
-    },
-  )
-
-  context.subscriptions.push(disposable, downloadDispoable)
+  context.subscriptions.push(disposable)
 }
 
 export function deactivate() {}
