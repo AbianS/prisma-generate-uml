@@ -5,8 +5,6 @@ import { transformDmmfToModelsAndConnections } from "./core/render"
 import { PrismaUMLPanel } from "./panels/prisma-uml-panel"
 
 export function activate(context: vscode.ExtensionContext) {
-  let panel: vscode.WebviewPanel
-
   const disposable = vscode.commands.registerCommand(
     "prisma-generate-uml.generateUML",
     async () => {
@@ -24,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
           response = await getDMMF({ datamodel: schemaResultFromFile.schemas })
         } catch (err) {
           console.error(
-            `[prisma-generate-uml] Error al leer el esquema desde archivo: ${err}`,
+            `[prisma-generate-uml] Tried reading schema from file: ${err}`,
           )
         }
 
@@ -36,13 +34,13 @@ export function activate(context: vscode.ExtensionContext) {
             response = await getDMMF({ datamodel: schemaResultFromDir.schemas })
           } catch (err) {
             console.error(
-              `[prisma-generate-uml] Error al leer el esquema desde directorio: ${err}`,
+              `[prisma-generate-uml] Tried reading schema from directory: ${err}`,
             )
           }
         }
 
         if (!response) {
-          throw new Error("No se encontró ningún esquema")
+          throw new Error("no schema found")
         }
 
         const { models, connections, enums } =
@@ -51,22 +49,13 @@ export function activate(context: vscode.ExtensionContext) {
         PrismaUMLPanel.render(context.extensionUri, models, connections, enums)
       } else {
         vscode.window.showInformationMessage(
-          "Abre un archivo .prisma para usar este comando",
+          "Open a .prisma file to use this command",
         )
       }
     },
   )
 
-  const downloadDispoable = vscode.commands.registerCommand(
-    "prisma-generate-uml.download",
-    () => {
-      if (panel) {
-        panel.webview.postMessage({ command: "download" })
-      }
-    },
-  )
-
-  context.subscriptions.push(disposable, downloadDispoable)
+  context.subscriptions.push(disposable)
 }
 
 export function deactivate() {}

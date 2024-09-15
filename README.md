@@ -3,14 +3,14 @@
     <a href="#" target="_blank"><img src="./media/readme/banner.jpg" alt="logo"></a>
     <br />
     <br />
-    <b>Prisma Generate UML</b> is a VSCode extension that quickly creates UML diagrams from Prisma schemas with a single click, offering easy visualization and SVG downloads.
+    <b>Prisma Generate UML</b> is a VSCode extension that quickly creates UML diagrams from Prisma schemas with a single click, offering easy visualization.
     <br />
     <br />
 </p>
 
 > _You can download final bundles from the [Releases](https://github.com/AbianS/prisma-generate-uml/releases) section._
 
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white) ![Prisma ORM](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white) ![esbuild](https://img.shields.io/badge/esbuild-FFCF00?style=for-the-badge&logo=esbuild&logoColor=white) ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white) ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![Prisma ORM](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white) ![esbuild](https://img.shields.io/badge/esbuild-FFCF00?style=for-the-badge&logo=esbuild&logoColor=white) ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
 
 > [!NOTE]
 > 🚧
@@ -20,7 +20,6 @@
 
 - 🔥 **Instant UML Diagrams**: Generate UML diagrams from Prisma schemas with a single click.
 - 🖼 **Easy Visualization**: Simplify data architecture visualization in an exciting way.
-- 💾 **SVG Downloads**: Download UML diagrams in SVG format effortlessly.
 - 🛠 **Seamless Integration**: Works seamlessly within VSCode, no extra configuration required.
 - 📂 **Multi-file Prisma Schema Support**: We fully support Prisma's `prismaSchemaFolder` feature, allowing you to split your schema into multiple files while still generating a complete UML diagram of your entire database.
 
@@ -47,14 +46,3 @@ Generate UML diagrams with a single click:
 Simplify data architecture visualization in an exciting way! 🚀
 
 ![usage](media/readme/usage.jpg)
-
-## 💾 Download the UML Diagram
-
-Download your UML diagram in SVG format effortlessly:
-
-1. Click the "Download SVG" button above the generated UML diagram.
-2. Save the SVG file to your preferred location.
-
-Enjoy the flexibility of downloading your UML diagrams with just a click! 🌟
-
-![download](media/readme/download.png) |

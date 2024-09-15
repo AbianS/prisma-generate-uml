@@ -12,8 +12,6 @@ vsc-extension-quickstart.md
 node_modules
 package-lock.json
 pnpm-lock.yaml
-src/extension.js
-src/core/render.js
 src/**
 
 webview-ui/**
