@@ -1,20 +1,9 @@
 import { Handle, NodeProps, Position } from "reactflow"
 import { useTheme } from "../lib/contexts/theme"
 import { Model } from "../lib/types/schema"
-import { useEffect } from "react"
 
 export const ModelNode = ({ data }: NodeProps<Model>) => {
   const { isDarkMode } = useTheme()
-
-  useEffect(() => {
-    const deleteDiv = document.getElementsByClassName(
-      "react-flow__panel react-flow__attribution bottom right",
-    )
-
-    if (deleteDiv.length > 0) {
-      deleteDiv[0].remove()
-    }
-  }, [])
 
   return (
     <div className="rounded-lg min-w-[250px]">

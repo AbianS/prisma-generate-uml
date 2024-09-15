@@ -14,6 +14,7 @@ package-lock.json
 pnpm-lock.yaml
 src/extension.js
 src/core/render.js
+src/**
 
 webview-ui/**
 !webview-ui/build/

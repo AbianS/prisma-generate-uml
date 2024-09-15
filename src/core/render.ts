@@ -22,8 +22,11 @@ export type ModelConnection = {
 }
 
 /**
- * Transforma el DMMF a un formato que puede ser usado por la aplicación de React.
- * Genera una lista de modelos y una lista de conexiones.
+ * Transforms the Prisma DMMF (Data Model Meta Format) into a structure that can be used by the React application.
+ * This function generates a list of models, enums, and connections based on the DMMF document.
+ *
+ * @param {DMMF.Document} dmmf - The Prisma DMMF document containing the schema information.
+ * @returns {{ models: Model[], enums: Enum[], connections: ModelConnection[] }} An object containing the transformed models, enums, and connections.
  */
 export function transformDmmfToModelsAndConnections(dmmf: DMMF.Document): {
   models: Model[]
@@ -38,7 +41,11 @@ export function transformDmmfToModelsAndConnections(dmmf: DMMF.Document): {
 }
 
 /**
- * Genera un arreglo de objetos de modelo basado en los modelos del DMMF.
+ * Generates an array of `Model` objects based on the models defined in the DMMF.
+ * Each model includes its fields and a flag indicating whether it has relationships with other models.
+ *
+ * @param {readonly DMMF.Model[]} models - The list of models from the DMMF document.
+ * @returns {Model[]} An array of `Model` objects containing their respective fields and relationship data.
  */
 export function generateModels(models: readonly DMMF.Model[]): Model[] {
   return models.map((model) => ({
@@ -55,6 +62,13 @@ export function generateModels(models: readonly DMMF.Model[]): Model[] {
   }))
 }
 
+/**
+ * Generates an array of `Enum` objects based on the enums defined in the DMMF.
+ * Each enum includes its name and its possible values.
+ *
+ * @param {readonly DMMF.DatamodelEnum[]} enums - The list of enums from the DMMF document.
+ * @returns {Enum[]} An array of `Enum` objects with their respective values.
+ */
 export function generateEnums(enums: readonly DMMF.DatamodelEnum[]): Enum[] {
   return enums.map((enumItem) => ({
     name: enumItem.name,
@@ -63,7 +77,11 @@ export function generateEnums(enums: readonly DMMF.DatamodelEnum[]): Enum[] {
 }
 
 /**
- * Genera las conexiones entre modelos en base a las relaciones definidas en el DMMF.
+ * Generates connections between models based on relationships defined in the DMMF.
+ * Each connection represents a relationship between two models, identified by source and target handles.
+ *
+ * @param {readonly DMMF.Model[]} models - The list of models from the DMMF document.
+ * @returns {ModelConnection[]} An array of `ModelConnection` objects representing relationships between models.
  */
 export function generateModelConnections(
   models: readonly DMMF.Model[],
@@ -75,15 +93,15 @@ export function generateModelConnections(
       const targetModelName = field.type
       const connectionName = field.relationName || field.name
 
-      // Si el tipo del campo es otro modelo, creamos una conexión
+      // If the field type is another model, create a connection
       const isConnectedToOtherModel = models.some(
         (m) => m.name === targetModelName,
       )
 
       if (isConnectedToOtherModel) {
         connections.push({
-          source: `${model.name}-${field.name}-source`, // Cambiar el id del source handle
-          target: `${targetModelName}-target`, // Cambiar el id del target handle
+          source: `${model.name}-${field.name}-source`,
+          target: `${targetModelName}-target`,
           name: connectionName,
         })
       }

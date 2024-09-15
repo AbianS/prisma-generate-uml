@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react"
-import "./App.css"
 import { SchemaVisualizer } from "./components/SchemaVisualizer"
+import { ThemeProvider } from "./lib/contexts/theme"
 import {
   ColorThemeKind,
   Enum,
   Model,
   ModelConnection,
 } from "./lib/types/schema"
-import { ThemeProvider } from "./lib/contexts/theme"
+import { ReactFlowProvider } from "reactflow"
 
 function App() {
   const [models, setModels] = useState<Model[]>([])
@@ -37,11 +37,13 @@ function App() {
     models.length > 0 &&
     connections.length > 0 && (
       <ThemeProvider theme={theme}>
-        <SchemaVisualizer
-          models={models}
-          connections={connections}
-          enums={enums}
-        />
+        <ReactFlowProvider>
+          <SchemaVisualizer
+            models={models}
+            connections={connections}
+            enums={enums}
+          />
+        </ReactFlowProvider>
       </ThemeProvider>
     )
   )

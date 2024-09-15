@@ -15,7 +15,6 @@ export class PrismaUMLPanel {
   private readonly _panel: WebviewPanel
   private _disposables: Disposable[] = []
 
-  // Modificación: en lugar de "dml", se pasa "models" y "connections"
   private constructor(
     panel: WebviewPanel,
     extensionUri: Uri,
@@ -25,19 +24,15 @@ export class PrismaUMLPanel {
   ) {
     this._panel = panel
 
-    // Escuchar cuando se cierre el panel
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables)
 
-    // Enviar HTML al panel y pasar datos a la webview
     this._panel.webview.html = this._getWebviewContent(
       this._panel.webview,
       extensionUri,
     )
 
-    // Icono del panel
     this._panel.iconPath = Uri.joinPath(extensionUri, "media/uml.svg")
 
-    // Modificación: Enviar los modelos y conexiones al webview
     this._panel.webview.postMessage({
       command: "setData",
       models,
@@ -45,17 +40,12 @@ export class PrismaUMLPanel {
       enums,
     })
 
-    // Modificación: Enviar si es dark mode o light mode
     this._panel.webview.postMessage({
       command: "setTheme",
       theme: window.activeColorTheme.kind,
     })
-
-    // Escuchar mensajes desde el webview
-    this._setWebviewMessageListener(this._panel.webview)
   }
 
-  // Modificación: cambiar dml por models y connections
   public static render(
     extensionUri: Uri,
     models: Model[],
@@ -129,20 +119,5 @@ export class PrismaUMLPanel {
         </body>
       </html>
     `
-  }
-
-  private _setWebviewMessageListener(webview: Webview) {
-    webview.onDidReceiveMessage(
-      (message: any) => {
-        switch (message.command) {
-          case "download":
-            // Lógica para descargar el diagrama
-            window.showInformationMessage("Descargando diagrama...")
-            return
-        }
-      },
-      undefined,
-      this._disposables,
-    )
   }
 }
