@@ -28,14 +28,6 @@
         }
       },
       {
-        "command": "prisma-generate-uml.download",
-        "title": "Download SVG",
-        "icon": {
-          "light": "./media/download_light.svg",
-          "dark": "./media/download_dark.svg"
-        }
-      },
-      {
         "command": "hello-world.showHelloWorld",
         "title": "Hello World (React + Vite): Show"
       }
@@ -46,11 +38,6 @@
           "when": "editorLangId == prisma",
           "command": "prisma-generate-uml.generateUML",
           "group": "navigation"
-        },
-        {
-          "command": "prisma-generate-uml.download",
-          "group": "navigation",
-          "when": "prismaIsFocused && !editorLangId"
         }
       ]
     }
