@@ -17,6 +17,7 @@ import {
   nodeColor,
   nodeStrokeColor,
 } from "../lib/utils/colots"
+import DownloadButton from "./DownloadButton"
 
 interface Props {
   models: Model[]
@@ -62,7 +63,7 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
 
   return (
     <div
-      className={`h-[100vh] w-full ${
+      className={`h-[100vh] w-full relative ${
         isDarkMode ? "bg-[#1c1c1c]" : "bg-[#e0e0e0]"
       }`}
     >
@@ -104,6 +105,9 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
           >
             Horizontal Layout
           </button>
+        </Panel>
+        <Panel position="top-left">
+          <DownloadButton />
         </Panel>
       </ReactFlow>
     </div>

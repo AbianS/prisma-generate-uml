@@ -1,10 +1,13 @@
+import * as vscode from "vscode"
 import { getDMMF, getSchemaWithPath } from "@prisma/internals"
-import vscode from "vscode"
-
 import { transformDmmfToModelsAndConnections } from "./core/render"
 import { PrismaUMLPanel } from "./panels/prisma-uml-panel"
+let outputChannel: vscode.OutputChannel
 
 export function activate(context: vscode.ExtensionContext) {
+  outputChannel = vscode.window.createOutputChannel("Prisma Generate UML")
+  outputChannel.appendLine("Prisma Generate UML extension activated")
+
   const disposable = vscode.commands.registerCommand(
     "prisma-generate-uml.generateUML",
     async () => {
@@ -46,7 +49,13 @@ export function activate(context: vscode.ExtensionContext) {
         const { models, connections, enums } =
           transformDmmfToModelsAndConnections(response)
 
-        PrismaUMLPanel.render(context.extensionUri, models, connections, enums)
+        PrismaUMLPanel.render(
+          context.extensionUri,
+          models,
+          connections,
+          enums,
+          currentFileUri,
+        )
       } else {
         vscode.window.showInformationMessage(
           "Open a .prisma file to use this command",

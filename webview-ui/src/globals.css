@@ -5,3 +5,34 @@
 body {
   @apply p-0;
 }
+
+/* button download */
+.download-btn {
+  position: relative;
+  padding-right: 30px;
+}
+
+.download-btn .spinner {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+.download-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
