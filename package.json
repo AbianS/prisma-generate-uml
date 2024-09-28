@@ -69,6 +69,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "@microsoft/vscode-file-downloader-api": "^1.0.1",
     "@prisma/internals": "^5.19.1"
   }
 }
