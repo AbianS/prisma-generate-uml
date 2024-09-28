@@ -2,22 +2,25 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
   ConnectionLineType,
+  ControlButton,
   Controls,
   MiniMap,
   Panel,
+  useReactFlow,
 } from "reactflow"
 import { useTheme } from "../lib/contexts/theme"
 import { useGraph } from "../lib/hooks/useGraph"
 import { Enum, Model, ModelConnection } from "../lib/types/schema"
-import { EnumNode } from "./EnumNode"
-import { ModelNode } from "./ModelNode"
 import {
   getButtonStyle,
   maskColor,
   nodeColor,
   nodeStrokeColor,
 } from "../lib/utils/colots"
-import DownloadButton from "./DownloadButton"
+import { screenshot } from "../lib/utils/screnshot"
+import { EnumNode } from "./EnumNode"
+import { IDownload } from "./icons/IDownload"
+import { ModelNode } from "./ModelNode"
 
 interface Props {
   models: Model[]
@@ -27,6 +30,7 @@ interface Props {
 
 export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
   const { isDarkMode } = useTheme()
+  const { getNodes } = useReactFlow()
 
   const modelNodes = models.map((model) => ({
     id: model.name,
@@ -78,7 +82,11 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
         minZoom={0.2}
         fitView
       >
-        <Controls />
+        <Controls>
+          <ControlButton title="Download" onClick={() => screenshot(getNodes)}>
+            <IDownload />
+          </ControlButton>
+        </Controls>
         <MiniMap
           nodeStrokeWidth={3}
           zoomable
@@ -105,9 +113,6 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
           >
             Horizontal Layout
           </button>
-        </Panel>
-        <Panel position="top-left">
-          <DownloadButton />
         </Panel>
       </ReactFlow>
     </div>
