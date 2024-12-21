@@ -1,32 +1,32 @@
-import dagre from "@dagrejs/dagre"
-import { Edge, Node, Position } from "reactflow"
+import dagre from '@dagrejs/dagre';
+import { Edge, Node, Position } from 'reactflow';
 
-const dagreGraph = new dagre.graphlib.Graph()
-dagreGraph.setDefaultEdgeLabel(() => ({}))
+const dagreGraph = new dagre.graphlib.Graph();
+dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const nodeWidth = 250
-const nodeHeight = 400
+const nodeWidth = 250;
+const nodeHeight = 400;
 
 export const getLayoutedElements = (
   nodes: Node[],
   edges: Edge[],
-  direction = "TB",
+  direction = 'TB',
 ) => {
-  const isHorizontal = direction === "LR"
-  dagreGraph.setGraph({ rankdir: direction })
+  const isHorizontal = direction === 'LR';
+  dagreGraph.setGraph({ rankdir: direction });
 
   nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight })
-  })
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+  });
 
   edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target)
-  })
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
 
-  dagre.layout(dagreGraph)
+  dagre.layout(dagreGraph);
 
   const newNodes = nodes.map((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id)
+    const nodeWithPosition = dagreGraph.node(node.id);
     return {
       ...node,
       targetPosition: isHorizontal ? Position.Left : Position.Top,
@@ -35,8 +35,8 @@ export const getLayoutedElements = (
         x: nodeWithPosition.x - nodeWidth / 2,
         y: nodeWithPosition.y - nodeHeight / 2,
       },
-    }
-  })
+    };
+  });
 
-  return { nodes: newNodes, edges }
-}
+  return { nodes: newNodes, edges };
+};

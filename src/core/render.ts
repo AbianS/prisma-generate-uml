@@ -1,25 +1,25 @@
-import { DMMF } from "@prisma/generator-helper"
+import { DMMF } from '@prisma/generator-helper';
 
 export type Model = {
-  name: string
+  name: string;
   fields: {
-    name: string
-    type: string
-    hasConnections?: boolean
-  }[]
-  isChild?: boolean
-}
+    name: string;
+    type: string;
+    hasConnections?: boolean;
+  }[];
+  isChild?: boolean;
+};
 
 export type Enum = {
-  name: string
-  values: string[]
-}
+  name: string;
+  values: string[];
+};
 
 export type ModelConnection = {
-  target: string
-  source: string
-  name: string
-}
+  target: string;
+  source: string;
+  name: string;
+};
 
 /**
  * Transforms the Prisma DMMF (Data Model Meta Format) into a structure that can be used by the React application.
@@ -29,15 +29,15 @@ export type ModelConnection = {
  * @returns {{ models: Model[], enums: Enum[], connections: ModelConnection[] }} An object containing the transformed models, enums, and connections.
  */
 export function transformDmmfToModelsAndConnections(dmmf: DMMF.Document): {
-  models: Model[]
-  enums: Enum[]
-  connections: ModelConnection[]
+  models: Model[];
+  enums: Enum[];
+  connections: ModelConnection[];
 } {
-  const models = generateModels(dmmf.datamodel.models)
-  const enums = generateEnums(dmmf.datamodel.enums)
-  const connections = generateModelConnections(dmmf.datamodel.models)
+  const models = generateModels(dmmf.datamodel.models);
+  const enums = generateEnums(dmmf.datamodel.enums);
+  const connections = generateModelConnections(dmmf.datamodel.models);
 
-  return { models, enums, connections }
+  return { models, enums, connections };
 }
 
 /**
@@ -54,12 +54,12 @@ export function generateModels(models: readonly DMMF.Model[]): Model[] {
       name: field.name,
       type: field.isList ? `${field.type}[]` : field.type,
       hasConnections:
-        field.kind === "object" || (field.relationFromFields?.length ?? 0) > 0,
+        field.kind === 'object' || (field.relationFromFields?.length ?? 0) > 0,
     })),
     isChild: model.fields.some(
-      (field) => field.relationFromFields?.length ?? 0 > 0,
+      (field) => (field.relationFromFields?.length ?? 0) > 0,
     ),
-  }))
+  }));
 }
 
 /**
@@ -73,7 +73,7 @@ export function generateEnums(enums: readonly DMMF.DatamodelEnum[]): Enum[] {
   return enums.map((enumItem) => ({
     name: enumItem.name,
     values: enumItem.values.map((v) => v.name),
-  }))
+  }));
 }
 
 /**
@@ -86,27 +86,27 @@ export function generateEnums(enums: readonly DMMF.DatamodelEnum[]): Enum[] {
 export function generateModelConnections(
   models: readonly DMMF.Model[],
 ): ModelConnection[] {
-  const connections: ModelConnection[] = []
+  const connections: ModelConnection[] = [];
 
   models.forEach((model) => {
     model.fields.forEach((field) => {
-      const targetModelName = field.type
-      const connectionName = field.relationName || field.name
+      const targetModelName = field.type;
+      const connectionName = field.relationName || field.name;
 
       // If the field type is another model, create a connection
       const isConnectedToOtherModel = models.some(
         (m) => m.name === targetModelName,
-      )
+      );
 
       if (isConnectedToOtherModel) {
         connections.push({
           source: `${model.name}-${field.name}-source`,
           target: `${targetModelName}-target`,
           name: connectionName,
-        })
+        });
       }
-    })
-  })
+    });
+  });
 
-  return connections
+  return connections;
 }

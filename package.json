@@ -9,12 +9,8 @@
   "engines": {
     "vscode": "^1.83.0"
   },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onStartupFinished"
-  ],
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
   "main": "./dist/extension.js",
   "browser": "./dist/extension.js",
   "contributes": {
@@ -52,19 +48,18 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
+    "lint": "biome lint .",
+    "lint:fix": "biome check . --write",
     "test": "vscode-test"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "@types/mocha": "^10.0.7",
     "@types/node": "22.x",
     "@types/vscode": "^1.83.0",
-    "@typescript-eslint/eslint-plugin": "^7.7.1",
-    "@typescript-eslint/parser": "^7.7.1",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
     "esbuild": "^0.23.1",
-    "eslint": "^8.57.0",
     "shx": "^0.3.4",
     "typescript": "^5.5.4"
   },

@@ -1,18 +1,18 @@
-import { NodeProps } from "reactflow"
-import { Enum } from "../lib/types/schema"
-import { useTheme } from "../lib/contexts/theme"
+import { NodeProps } from 'reactflow';
+import { useTheme } from '../lib/contexts/theme';
+import { Enum } from '../lib/types/schema';
 
 export const EnumNode = ({ data }: NodeProps<Enum>) => {
-  const { isDarkMode } = useTheme()
+  const { isDarkMode } = useTheme();
 
   return (
     <div className="rounded-lg min-w-[150px]">
       <div
         className={`p-1 text-center rounded-t-lg rounded-b-none ${
-          isDarkMode ? "bg-[#5a9f78]" : "bg-[#6ec19d]"
+          isDarkMode ? 'bg-[#5a9f78]' : 'bg-[#6ec19d]'
         } `}
       >
-        <p className={`font-bold ${isDarkMode ? "text-white" : "text-black"}`}>
+        <p className={`font-bold ${isDarkMode ? 'text-white' : 'text-black'}`}>
           <pre>{data.name}</pre>
         </p>
       </div>
@@ -22,11 +22,11 @@ export const EnumNode = ({ data }: NodeProps<Enum>) => {
           className={`flex justify-between p-1  ${
             isDarkMode
               ? index % 2 === 0
-                ? "bg-[#282828] text-white"
-                : "bg-[#232323] text-white"
+                ? 'bg-[#282828] text-white'
+                : 'bg-[#232323] text-white'
               : index % 2 === 0
-              ? "bg-[#d3d3d3] text-black"
-              : "bg-[#e0e0e0] text-black"
+                ? 'bg-[#d3d3d3] text-black'
+                : 'bg-[#e0e0e0] text-black'
           }`}
         >
           <p>
@@ -35,5 +35,5 @@ export const EnumNode = ({ data }: NodeProps<Enum>) => {
         </div>
       ))}
     </div>
-  )
-}
+  );
+};

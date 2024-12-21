@@ -1,30 +1,30 @@
-import { toPng } from "html-to-image"
-import { getNodesBounds, getViewportForBounds, Node } from "reactflow"
+import { toPng } from 'html-to-image';
+import { Node, getNodesBounds, getViewportForBounds } from 'reactflow';
 
 interface VSCodeAPI {
-  postMessage(message: SaveImageMessage): void
-  getState(): unknown
-  setState(state: unknown): void
+  postMessage(message: SaveImageMessage): void;
+  getState(): unknown;
+  setState(state: unknown): void;
 }
 
 interface SaveImageMessage {
-  command: "saveImage"
+  command: 'saveImage';
   data: {
-    format: "png"
-    dataUrl: string
-  }
+    format: 'png';
+    dataUrl: string;
+  };
 }
 
-declare function acquireVsCodeApi(): VSCodeAPI
+declare function acquireVsCodeApi(): VSCodeAPI;
 
-const vscode = acquireVsCodeApi()
+const vscode = acquireVsCodeApi();
 
 export const screenshot = (getNodes: () => Node[]) => {
-  const nodesBounds = getNodesBounds(getNodes())
+  const nodesBounds = getNodesBounds(getNodes());
 
   // 8k resolution
-  const imageWidth = 7680
-  const imageHeight = 4320
+  const imageWidth = 7680;
+  const imageHeight = 4320;
 
   const transform = getViewportForBounds(
     nodesBounds,
@@ -32,14 +32,14 @@ export const screenshot = (getNodes: () => Node[]) => {
     imageHeight,
     0,
     2,
-  )
+  );
 
-  toPng(document.querySelector(".react-flow__viewport") as HTMLElement, {
+  toPng(document.querySelector('.react-flow__viewport') as HTMLElement, {
     filter: (node) => {
-      const exclude = ["react-flow__minimap", "react-flow__controls"]
-      return !exclude.some((className) => node.classList?.contains(className))
+      const exclude = ['react-flow__minimap', 'react-flow__controls'];
+      return !exclude.some((className) => node.classList?.contains(className));
     },
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
     width: imageWidth,
     height: imageHeight,
     style: {
@@ -48,11 +48,11 @@ export const screenshot = (getNodes: () => Node[]) => {
   })
     .then((dataUrl) => {
       vscode.postMessage({
-        command: "saveImage",
-        data: { format: "png", dataUrl },
-      })
+        command: 'saveImage',
+        data: { format: 'png', dataUrl },
+      });
     })
     .catch((error) => {
-      console.error("Error generating image:", error)
-    })
-}
+      console.error('Error generating image:', error);
+    });
+};
