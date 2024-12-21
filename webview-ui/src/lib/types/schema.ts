@@ -1,23 +1,23 @@
 export type Model = {
-  name: string
+  name: string;
   fields: {
-    name: string
-    type: string
-    hasConnections?: boolean
-  }[]
-  isChild?: boolean
-}
+    name: string;
+    type: string;
+    hasConnections?: boolean;
+  }[];
+  isChild?: boolean;
+};
 
 export type ModelConnection = {
-  target: string
-  source: string
-  name: string
-}
+  target: string;
+  source: string;
+  name: string;
+};
 
 export type Enum = {
-  name: string
-  values: string[]
-}
+  name: string;
+  values: string[];
+};
 
 export enum ColorThemeKind {
   Light = 1,

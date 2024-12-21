@@ -1,13 +1,13 @@
-import * as vscode from "vscode"
-import { getUri } from "../utilities/getUri"
-import { getNonce } from "../utilities/getNonce"
-import { Enum, Model, ModelConnection } from "../core/render"
+import * as vscode from 'vscode';
+import { Enum, Model, ModelConnection } from '../core/render';
+import { getNonce } from '../utilities/getNonce';
+import { getUri } from '../utilities/getUri';
 
 export class PrismaUMLPanel {
-  public static currentPanel: PrismaUMLPanel | undefined
-  public static readonly viewType = "prismaUML"
-  private readonly _panel: vscode.WebviewPanel
-  private _disposables: vscode.Disposable[] = []
+  public static currentPanel: PrismaUMLPanel | undefined;
+  public static readonly viewType = 'prismaUML';
+  private readonly _panel: vscode.WebviewPanel;
+  private _disposables: vscode.Disposable[] = [];
 
   private constructor(
     panel: vscode.WebviewPanel,
@@ -17,40 +17,40 @@ export class PrismaUMLPanel {
     connections: ModelConnection[],
     enums: Enum[],
   ) {
-    this._panel = panel
+    this._panel = panel;
 
-    this._panel.onDidDispose(() => this.dispose(), null, this._disposables)
+    this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
-    this._panel.webview.html = this._getWebviewContent(this._panel.webview)
+    this._panel.webview.html = this._getWebviewContent(this._panel.webview);
 
     this._panel.iconPath = vscode.Uri.joinPath(
       this._extensionUri,
-      "media/uml.svg",
-    )
+      'media/uml.svg',
+    );
 
     this._panel.webview.postMessage({
-      command: "setData",
+      command: 'setData',
       models,
       connections,
       enums,
-    })
+    });
 
     this._panel.webview.postMessage({
-      command: "setTheme",
+      command: 'setTheme',
       theme: vscode.window.activeColorTheme.kind,
-    })
+    });
 
     this._panel.webview.onDidReceiveMessage(
       async (message) => {
         switch (message.command) {
-          case "saveImage":
-            await this._saveImage(message.data)
-            return
+          case 'saveImage':
+            await this._saveImage(message.data);
+            return;
         }
       },
       null,
       this._disposables,
-    )
+    );
   }
 
   public static render(
@@ -61,21 +61,21 @@ export class PrismaUMLPanel {
     currentFileUri: vscode.Uri,
   ) {
     if (PrismaUMLPanel.currentPanel) {
-      PrismaUMLPanel.currentPanel._panel.reveal(vscode.ViewColumn.One)
+      PrismaUMLPanel.currentPanel.updateData(models, connections, enums);
     } else {
       const panel = vscode.window.createWebviewPanel(
         PrismaUMLPanel.viewType,
-        "Prisma Schema UML",
+        'Prisma Schema UML',
         vscode.ViewColumn.Two,
         {
           enableScripts: true,
           retainContextWhenHidden: true,
           localResourceRoots: [
-            vscode.Uri.joinPath(extensionUri, "out"),
-            vscode.Uri.joinPath(extensionUri, "webview-ui/build"),
+            vscode.Uri.joinPath(extensionUri, 'out'),
+            vscode.Uri.joinPath(extensionUri, 'webview-ui/build'),
           ],
         },
-      )
+      );
       PrismaUMLPanel.currentPanel = new PrismaUMLPanel(
         panel,
         extensionUri,
@@ -83,54 +83,67 @@ export class PrismaUMLPanel {
         models,
         connections,
         enums,
-      )
+      );
     }
   }
 
   private async _saveImage(data: { format: string; dataUrl: string }) {
-    const base64Data = data.dataUrl.replace(/^data:image\/\w+;base64,/, "")
-    const buffer = Buffer.from(base64Data, "base64")
+    const base64Data = data.dataUrl.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
 
     const uri = await vscode.window.showSaveDialog({
       filters: { Images: [data.format] },
       defaultUri: vscode.Uri.file(`prisma-uml.${data.format}`),
-    })
+    });
 
     if (uri) {
       try {
-        await vscode.workspace.fs.writeFile(uri, buffer)
-        vscode.window.showInformationMessage(`Image saved to ${uri.fsPath}`)
+        await vscode.workspace.fs.writeFile(uri, buffer);
+        vscode.window.showInformationMessage(`Image saved to ${uri.fsPath}`);
       } catch (error) {
-        vscode.window.showErrorMessage(`Failed to save image: ${error}`)
+        vscode.window.showErrorMessage(`Failed to save image: ${error}`);
       }
     }
   }
 
+  public updateData(
+    models: Model[],
+    connections: ModelConnection[],
+    enums: Enum[],
+  ) {
+    this._panel.webview.postMessage({
+      command: 'setData',
+      models,
+      connections,
+      enums,
+    });
+  }
+
   public dispose() {
-    PrismaUMLPanel.currentPanel = undefined
-    this._panel.dispose()
+    PrismaUMLPanel.currentPanel = undefined;
+    this._panel.dispose();
     while (this._disposables.length) {
-      const disposable = this._disposables.pop()
+      const disposable = this._disposables.pop();
       if (disposable) {
-        disposable.dispose()
+        disposable.dispose();
       }
     }
   }
 
   private _getWebviewContent(webview: vscode.Webview) {
     const stylesUri = getUri(webview, this._extensionUri, [
-      "webview-ui",
-      "build",
-      "assets",
-      "index.css",
-    ])
+      'webview-ui',
+      'build',
+      'assets',
+      'index.css',
+    ]);
     const scriptUri = getUri(webview, this._extensionUri, [
-      "webview-ui",
-      "build",
-      "assets",
-      "index.js",
-    ])
-    const nonce = getNonce()
+      'webview-ui',
+      'build',
+      'assets',
+      'index.js',
+    ]);
+    const nonce = getNonce();
 
     return /*html*/ `
       <!DOCTYPE html>
@@ -147,6 +160,6 @@ export class PrismaUMLPanel {
           <script type="module" nonce="${nonce}" src="${scriptUri}"></script>
         </body>
       </html>
-    `
+    `;
   }
 }
