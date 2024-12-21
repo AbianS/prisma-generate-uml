@@ -13,24 +13,28 @@ function App() {
   const [models, setModels] = useState<Model[]>([])
   const [enums, setEnums] = useState<Enum[]>([])
   const [theme, setTheme] = useState<ColorThemeKind>(ColorThemeKind.Dark)
-  const [connections, setConnections] = useState<ModelConnection[]>([])
+  const [connections, setConnections] = useState<ModelConnection[]>([])  
 
   useEffect(() => {
-    window.addEventListener("message", (event) => {
+    function handleMessage(event: MessageEvent) {
       const message = event.data
-
+  
       if (message.command === "setData") {
         setModels(message.models)
         setConnections(message.connections)
         setEnums(message.enums)
       }
-
+  
       if (message.command === "setTheme") {
         setTheme(message.theme)
       }
-    })
-
-    return () => window.removeEventListener("message", () => {})
+    }
+  
+    window.addEventListener("message", handleMessage)
+  
+    return () => {
+      window.removeEventListener("message", handleMessage)
+    }
   }, [])
 
   return (

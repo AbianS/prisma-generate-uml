@@ -10,6 +10,7 @@ import {
   useReactFlow,
 } from "reactflow"
 import { getLayoutedElements } from "../utils/layout-utils"
+import equal from "fast-deep-equal"
 
 export const useGraph = (initialNodes: Node[], initialEdges: Edge[]) => {
   const { fitView } = useReactFlow()
@@ -42,6 +43,19 @@ export const useGraph = (initialNodes: Node[], initialEdges: Edge[]) => {
     },
     [nodes, edges, fitView],
   )
+
+
+  useEffect(() => {
+    const hasNodeChanges = !equal(nodes.map((n) => n.data), initialNodes.map((n) => n.data))
+  
+    if (hasNodeChanges) {
+      const { nodes: newLayoutedNodes, edges: newLayoutedEdges } =
+        getLayoutedElements(initialNodes, initialEdges, selectedLayout)
+  
+      setNodes(newLayoutedNodes)
+      setEdges(newLayoutedEdges)
+    }
+  }, [initialNodes, initialEdges, selectedLayout, setNodes, setEdges, nodes, edges])
 
   useLayoutEffect(() => {
     const { nodes: newLayoutedNodes, edges: newLayoutedEdges } =

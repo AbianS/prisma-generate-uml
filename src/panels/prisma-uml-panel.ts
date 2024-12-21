@@ -61,7 +61,7 @@ export class PrismaUMLPanel {
     currentFileUri: vscode.Uri,
   ) {
     if (PrismaUMLPanel.currentPanel) {
-      PrismaUMLPanel.currentPanel._panel.reveal(vscode.ViewColumn.One)
+      PrismaUMLPanel.currentPanel.updateData(models, connections, enums)
     } else {
       const panel = vscode.window.createWebviewPanel(
         PrismaUMLPanel.viewType,
@@ -104,6 +104,19 @@ export class PrismaUMLPanel {
         vscode.window.showErrorMessage(`Failed to save image: ${error}`)
       }
     }
+  }
+
+  public updateData(
+    models: Model[],
+    connections: ModelConnection[],
+    enums: Enum[],
+  ) {   
+    this._panel.webview.postMessage({
+      command: "setData",
+      models,
+      connections,
+      enums,
+    })
   }
 
   public dispose() {

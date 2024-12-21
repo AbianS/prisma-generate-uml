@@ -15,47 +15,8 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (editor && editor.document.languageId === "prisma") {
         const currentFileUri = editor.document.uri
-        const folderUri = vscode.Uri.joinPath(currentFileUri, "..")
 
-        let response: Awaited<ReturnType<typeof getDMMF>> | null = null
-        try {
-          const schemaResultFromFile = await getSchemaWithPath(
-            currentFileUri.fsPath,
-          )
-          response = await getDMMF({ datamodel: schemaResultFromFile.schemas })
-        } catch (err) {
-          console.error(
-            `[prisma-generate-uml] Tried reading schema from file: ${err}`,
-          )
-        }
-
-        if (!response) {
-          try {
-            const schemaResultFromDir = await getSchemaWithPath(
-              folderUri.fsPath,
-            )
-            response = await getDMMF({ datamodel: schemaResultFromDir.schemas })
-          } catch (err) {
-            console.error(
-              `[prisma-generate-uml] Tried reading schema from directory: ${err}`,
-            )
-          }
-        }
-
-        if (!response) {
-          throw new Error("no schema found")
-        }
-
-        const { models, connections, enums } =
-          transformDmmfToModelsAndConnections(response)
-
-        PrismaUMLPanel.render(
-          context.extensionUri,
-          models,
-          connections,
-          enums,
-          currentFileUri,
-        )
+        await generateUMLForPrismaFile(context, currentFileUri)
       } else {
         vscode.window.showInformationMessage(
           "Open a .prisma file to use this command",
@@ -64,7 +25,49 @@ export function activate(context: vscode.ExtensionContext) {
     },
   )
 
+  const onDidSaveDisposable = vscode.workspace.onDidSaveTextDocument(
+    async (document) => {
+      if (document.languageId === "prisma") {
+        await generateUMLForPrismaFile(context, document.uri)
+      }
+    }
+  )
+
   context.subscriptions.push(disposable)
+  context.subscriptions.push(onDidSaveDisposable)
 }
 
-export function deactivate() {}
+
+async function generateUMLForPrismaFile(
+  context: vscode.ExtensionContext,
+  fileUri: vscode.Uri
+) {
+  const folderUri = vscode.Uri.joinPath(fileUri, "..")
+
+  let response: Awaited<ReturnType<typeof getDMMF>> | null = null
+
+  try {
+    const schemaResultFromFile = await getSchemaWithPath(fileUri.fsPath)
+    response = await getDMMF({ datamodel: schemaResultFromFile.schemas })
+  } catch (err) {
+    console.error(`[prisma-generate-uml] Tried reading schema from file: ${err}`)
+  }
+
+  if (!response) {
+    try {
+      const schemaResultFromDir = await getSchemaWithPath(folderUri.fsPath)
+      response = await getDMMF({ datamodel: schemaResultFromDir.schemas })
+    } catch (err) {
+      console.error(`[prisma-generate-uml] Tried reading schema from directory: ${err}`)
+    }
+  }
+
+  if (!response) {
+    throw new Error("no schema found")
+  }
+
+  const { models, connections, enums } = transformDmmfToModelsAndConnections(response)
+  PrismaUMLPanel.render(context.extensionUri, models, connections, enums, fileUri)
+}
+
+export function deactivate() { }
