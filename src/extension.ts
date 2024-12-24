@@ -27,7 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const onDidSaveDisposable = vscode.workspace.onDidSaveTextDocument(
     async (document) => {
-      if (document.languageId === 'prisma') {
+      if (document.languageId === 'prisma' && PrismaUMLPanel.currentPanel) {
         await generateUMLForPrismaFile(context, document.uri);
       }
     },
