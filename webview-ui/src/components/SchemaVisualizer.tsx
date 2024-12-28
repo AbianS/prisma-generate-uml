@@ -4,6 +4,7 @@ import {
   ConnectionLineType,
   ControlButton,
   Controls,
+  Edge,
   MiniMap,
   Panel,
   ReactFlow,
@@ -47,13 +48,24 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
     position: { x: 0, y: 0 },
   }));
 
-  const edges = connections.map((connection) => ({
+  const edges: Edge[] = connections.map((connection) => ({
     id: `${connection.source}-${connection.target}`,
     source: connection.source.split('-')[0],
     target: connection.target.split('-')[0],
     sourceHandle: connection.source,
     targetHandle: connection.target,
     animated: true,
+
+    style: {
+      stroke: isDarkMode ? '#ffffff' : '#000000',
+      strokeWidth: 2,
+      strokeOpacity: 0.5,
+      strokeLinejoin: 'round',
+      strokeLinecap: 'round',
+      strokeDasharray: '5',
+      strokeDashoffset: 0,
+      fill: 'none',
+    },
   }));
 
   const {
@@ -73,6 +85,7 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
       }`}
     >
       <ReactFlow
+        colorMode={isDarkMode ? 'dark' : 'light'}
         nodes={nodes}
         edges={edgesState}
         onNodesChange={onNodesChange}
@@ -88,7 +101,7 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
             title="Download"
             onClick={() => screenshot(getNodes as any)}
           >
-            <IDownload />
+            <IDownload color={isDarkMode ? 'white' : 'black'} />
           </ControlButton>
         </Controls>
         <MiniMap
