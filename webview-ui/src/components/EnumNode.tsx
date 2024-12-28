@@ -1,8 +1,8 @@
-import { NodeProps } from 'reactflow';
+import { NodeProps } from '@xyflow/react';
 import { useTheme } from '../lib/contexts/theme';
-import { Enum } from '../lib/types/schema';
+import { EnumNodeTye } from '../lib/types/schema';
 
-export const EnumNode = ({ data }: NodeProps<Enum>) => {
+export const EnumNode = ({ data }: NodeProps<EnumNodeTye>) => {
   const { isDarkMode } = useTheme();
 
   return (

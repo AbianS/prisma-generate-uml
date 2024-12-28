@@ -1,5 +1,6 @@
 import dagre from '@dagrejs/dagre';
-import { Edge, Node, Position } from 'reactflow';
+import { Edge, Position } from '@xyflow/react';
+import { MyNode } from '../types/schema';
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -8,7 +9,7 @@ const nodeWidth = 250;
 const nodeHeight = 400;
 
 export const getLayoutedElements = (
-  nodes: Node[],
+  nodes: MyNode[],
   edges: Edge[],
   direction = 'TB',
 ) => {

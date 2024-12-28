@@ -1,4 +1,4 @@
-import ReactFlow, {
+import {
   Background,
   BackgroundVariant,
   ConnectionLineType,
@@ -6,8 +6,9 @@ import ReactFlow, {
   Controls,
   MiniMap,
   Panel,
+  ReactFlow,
   useReactFlow,
-} from 'reactflow';
+} from '@xyflow/react';
 import { useTheme } from '../lib/contexts/theme';
 import { useGraph } from '../lib/hooks/useGraph';
 import { Enum, Model, ModelConnection } from '../lib/types/schema';
@@ -83,7 +84,10 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
         fitView
       >
         <Controls>
-          <ControlButton title="Download" onClick={() => screenshot(getNodes)}>
+          <ControlButton
+            title="Download"
+            onClick={() => screenshot(getNodes as any)}
+          >
             <IDownload />
           </ControlButton>
         </Controls>
