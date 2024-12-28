@@ -1,18 +1,18 @@
 import equal from 'fast-deep-equal';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { getLayoutedElements } from '../utils/layout-utils';
 import {
+  addEdge,
   Connection,
   ConnectionLineType,
   Edge,
-  Node,
-  addEdge,
   useEdgesState,
   useNodesState,
   useReactFlow,
-} from 'reactflow';
-import { getLayoutedElements } from '../utils/layout-utils';
+} from '@xyflow/react';
+import { MyNode } from '../types/schema';
 
-export const useGraph = (initialNodes: Node[], initialEdges: Edge[]) => {
+export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
   const { fitView } = useReactFlow();
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);

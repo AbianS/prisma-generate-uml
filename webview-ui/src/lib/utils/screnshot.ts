@@ -1,5 +1,6 @@
+import { getNodesBounds, getViewportForBounds } from '@xyflow/react';
 import { toPng } from 'html-to-image';
-import { Node, getNodesBounds, getViewportForBounds } from 'reactflow';
+import { MyNode } from '../types/schema';
 
 interface VSCodeAPI {
   postMessage(message: SaveImageMessage): void;
@@ -19,7 +20,7 @@ declare function acquireVsCodeApi(): VSCodeAPI;
 
 const vscode = acquireVsCodeApi();
 
-export const screenshot = (getNodes: () => Node[]) => {
+export const screenshot = (getNodes: () => MyNode[]) => {
   const nodesBounds = getNodesBounds(getNodes());
 
   // 8k resolution
@@ -32,6 +33,7 @@ export const screenshot = (getNodes: () => Node[]) => {
     imageHeight,
     0,
     2,
+    0,
   );
 
   toPng(document.querySelector('.react-flow__viewport') as HTMLElement, {

@@ -1,3 +1,5 @@
+import { Node } from '@xyflow/react';
+
 export type Model = {
   name: string;
   fields: {
@@ -25,3 +27,9 @@ export enum ColorThemeKind {
   HighContrast = 3,
   HighContrastLight = 4,
 }
+
+export type EnumNodeTye = Node<Enum>;
+export type ModelNodeTye = Node<Model>;
+
+type NodeData = Model | Enum;
+export type MyNode = Node<NodeData>;

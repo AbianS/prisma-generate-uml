@@ -1,8 +1,8 @@
-import { Handle, NodeProps, Position } from 'reactflow';
+import { Handle, NodeProps, Position } from '@xyflow/react';
 import { useTheme } from '../lib/contexts/theme';
-import { Model } from '../lib/types/schema';
+import { ModelNodeTye } from '../lib/types/schema';
 
-export const ModelNode = ({ data }: NodeProps<Model>) => {
+export const ModelNode = ({ data }: NodeProps<ModelNodeTye>) => {
   const { isDarkMode } = useTheme();
 
   return (

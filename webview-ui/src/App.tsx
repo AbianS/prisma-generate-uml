@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { ReactFlowProvider } from 'reactflow';
 import { SchemaVisualizer } from './components/SchemaVisualizer';
 import { ThemeProvider } from './lib/contexts/theme';
 import {
@@ -8,6 +7,7 @@ import {
   Model,
   ModelConnection,
 } from './lib/types/schema';
+import { ReactFlowProvider } from '@xyflow/react';
 
 function App() {
   const [models, setModels] = useState<Model[]>([]);
