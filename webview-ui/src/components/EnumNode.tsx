@@ -1,8 +1,9 @@
 import { NodeProps } from '@xyflow/react';
 import { useTheme } from '../lib/contexts/theme';
 import { EnumNodeTye } from '../lib/types/schema';
+import { memo } from 'react';
 
-export const EnumNode = ({ data }: NodeProps<EnumNodeTye>) => {
+export const EnumNode = memo(({ data }: NodeProps<EnumNodeTye>) => {
   const { isDarkMode } = useTheme();
 
   return (
@@ -36,4 +37,4 @@ export const EnumNode = ({ data }: NodeProps<EnumNodeTye>) => {
       ))}
     </div>
   );
-};
+});

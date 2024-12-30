@@ -1,8 +1,9 @@
 import { Handle, NodeProps, Position } from '@xyflow/react';
 import { useTheme } from '../lib/contexts/theme';
 import { ModelNodeTye } from '../lib/types/schema';
+import { memo } from 'react';
 
-export const ModelNode = ({ data }: NodeProps<ModelNodeTye>) => {
+export const ModelNode = memo(({ data }: NodeProps<ModelNodeTye>) => {
   const { isDarkMode } = useTheme();
 
   return (
@@ -56,4 +57,4 @@ export const ModelNode = ({ data }: NodeProps<ModelNodeTye>) => {
       ))}
     </div>
   );
-};
+});

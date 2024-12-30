@@ -23,6 +23,7 @@ import { screenshot } from '../lib/utils/screnshot';
 import { EnumNode } from './EnumNode';
 import { ModelNode } from './ModelNode';
 import { IDownload } from './icons/IDownload';
+import { useMemo } from 'react';
 
 interface Props {
   models: Model[];
@@ -34,39 +35,45 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
   const { isDarkMode } = useTheme();
   const { getNodes } = useReactFlow();
 
-  const modelNodes = models.map((model) => ({
-    id: model.name,
-    data: model,
-    type: 'model',
-    position: { x: 0, y: 0 },
-  }));
+  const modelNodes = useMemo(() => {
+    return models.map((model) => ({
+      id: model.name,
+      data: model,
+      type: 'model',
+      position: { x: 0, y: 0 },
+    }));
+  }, [models]);
 
-  const enumNodes = enums.map((enumItem) => ({
-    id: enumItem.name,
-    data: enumItem,
-    type: 'enum',
-    position: { x: 0, y: 0 },
-  }));
+  const enumNodes = useMemo(() => {
+    return enums.map((enumItem) => ({
+      id: enumItem.name,
+      data: enumItem,
+      type: 'enum',
+      position: { x: 0, y: 0 },
+    }));
+  }, [enums]);
 
-  const edges: Edge[] = connections.map((connection) => ({
-    id: `${connection.source}-${connection.target}`,
-    source: connection.source.split('-')[0],
-    target: connection.target.split('-')[0],
-    sourceHandle: connection.source,
-    targetHandle: connection.target,
-    animated: true,
+  const edges: Edge[] = useMemo(() => {
+    return connections.map((connection) => ({
+      id: `${connection.source}-${connection.target}`,
+      source: connection.source.split('-')[0],
+      target: connection.target.split('-')[0],
+      sourceHandle: connection.source,
+      targetHandle: connection.target,
+      animated: false,
 
-    style: {
-      stroke: isDarkMode ? '#ffffff' : '#000000',
-      strokeWidth: 2,
-      strokeOpacity: 0.5,
-      strokeLinejoin: 'round',
-      strokeLinecap: 'round',
-      strokeDasharray: '5',
-      strokeDashoffset: 0,
-      fill: 'none',
-    },
-  }));
+      style: {
+        stroke: isDarkMode ? '#ffffff' : '#000000',
+        strokeWidth: 2,
+        strokeOpacity: 0.5,
+        strokeLinejoin: 'round',
+        strokeLinecap: 'round',
+        strokeDasharray: '5',
+        strokeDashoffset: 0,
+        fill: 'none',
+      },
+    }));
+  }, [connections]);
 
   const {
     nodes,
@@ -85,6 +92,7 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
       }`}
     >
       <ReactFlow
+        onlyRenderVisibleElements
         colorMode={isDarkMode ? 'dark' : 'light'}
         nodes={nodes}
         edges={edgesState}
