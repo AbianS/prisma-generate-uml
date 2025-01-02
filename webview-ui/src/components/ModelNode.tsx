@@ -1,7 +1,36 @@
 import { Handle, NodeProps, Position } from '@xyflow/react';
-import { memo } from 'react';
+import { JSX, memo } from 'react';
 import { useTheme } from '../lib/contexts/theme';
 import { ModelNodeTye } from '../lib/types/schema';
+
+import {
+  Calculator,
+  Calendar,
+  CheckSquare,
+  File,
+  FileText,
+  Hash,
+  Link2,
+  List,
+  Type,
+} from 'lucide-react';
+
+const typeIcons: Record<string, JSX.Element> = {
+  string: <Type size={16} />,
+  int: <Hash size={16} />,
+  float: <Calculator size={16} />,
+  double: <Hash size={16} />,
+  date: <Calendar size={16} />,
+  datetime: <Calendar size={16} />,
+  boolean: <CheckSquare size={16} />,
+  text: <FileText size={16} />,
+  file: <File size={16} />,
+  enum: <List size={16} />,
+};
+
+const getIconForType = (type: string) => {
+  return typeIcons[type.toLowerCase()] || <Link2 size={16} />;
+};
 
 export const ModelNode = memo(({ data }: NodeProps<ModelNodeTye>) => {
   const { isDarkMode } = useTheme();
@@ -55,7 +84,6 @@ export const ModelNode = memo(({ data }: NodeProps<ModelNodeTye>) => {
             key={name}
             className={`
               flex 
-              justify-between 
               items-center 
               px-3 py-2 
               text-sm
@@ -72,10 +100,11 @@ export const ModelNode = memo(({ data }: NodeProps<ModelNodeTye>) => {
               duration-200
             `}
           >
-            <div className="font-medium">
-              <pre className="whitespace-pre-wrap">{name}</pre>
+            <div className="flex items-center gap-2">
+              {getIconForType(type)}
+              <span className="font-medium whitespace-pre-wrap">{name}</span>
             </div>
-            <div className="text-gray-600 dark:text-gray-300">
+            <div className="ml-auto text-gray-600 dark:text-gray-300">
               <pre className="whitespace-pre-wrap">{type}</pre>
             </div>
 
