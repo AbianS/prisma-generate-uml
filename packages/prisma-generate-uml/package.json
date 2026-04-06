@@ -2,7 +2,7 @@
   "name": "prisma-generate-uml",
   "displayName": "Prisma Generate UML",
   "description": "Generate UML Diagram from prisma schema",
-  "version": "3.6.0",
+  "version": "3.6.1",
   "icon": "media/readme/logo.png",
   "repository": "https://github.com/AbianS/prisma-generate-uml",
   "publisher": "AbianS",
@@ -39,32 +39,34 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run build",
-    "build": "npm run copy:webview && npm run esbuild -- --minify && npm run copy",
-    "copy": "shx cp ../../node_modules/@prisma/prisma-schema-wasm/src/prisma_schema_build_bg.wasm dist/",
+    "vscode:prepublish": "pnpm build",
+    "build": "pnpm copy:webview && pnpm esbuild:prod && pnpm copy",
+    "copy": "shx cp node_modules/@prisma/prisma-schema-wasm/src/prisma_schema_build_bg.wasm dist/",
     "copy:webview": "shx mkdir -p webview-ui/build && shx cp -r ../webview-ui/build/* webview-ui/build/",
     "esbuild": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
+    "esbuild:prod": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --minify",
+    "esbuild:watch": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --watch",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile",
+    "pretest": "pnpm compile",
     "test": "vscode-test",
     "clean": "rm -rf dist webview-ui node_modules/.cache",
     "package": "vsce package",
     "publish": "vsce publish"
   },
   "devDependencies": {
-    "@types/mocha": "^10.0.10",
-    "@types/node": "24.x",
-    "@types/vscode": "^1.83.0",
-    "@vscode/test-cli": "^0.0.11",
-    "@vscode/test-electron": "^2.5.2",
-    "esbuild": "^0.25.5",
-    "shx": "^0.4.0",
-    "typescript": "^5.8.3",
-    "vsce": "2.15.0"
+    "@prisma/prisma-schema-wasm": "7.6.0-1.75cbdc1eb7150937890ad5465d861175c6624711",
+    "@types/mocha": "10.0.10",
+    "@types/node": "24.12.2",
+    "@types/vscode": "1.83.0",
+    "@vscode/test-cli": "0.0.12",
+    "@vscode/test-electron": "2.5.2",
+    "@vscode/vsce": "3.7.1",
+    "esbuild": "0.28.0",
+    "shx": "0.4.0",
+    "typescript": "6.0.2"
   },
   "dependencies": {
-    "@microsoft/vscode-file-downloader-api": "^1.0.1",
-    "@prisma/internals": "^7.0.0"
+    "@prisma/internals": "7.6.0"
   }
 }
