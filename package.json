@@ -1,19 +1,18 @@
 {
   "name": "root",
   "private": true,
-  "workspaces": ["packages/*"],
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "biome lint .",
     "lint:fix": "biome check . --write",
     "test": "turbo test",
-    "package:extension": "turbo build && npm run package -w prisma-generate-uml",
-    "publish:extension": "turbo build && npm run publish -w prisma-generate-uml"
+    "package:extension": "turbo build && pnpm --filter prisma-generate-uml package",
+    "publish:extension": "turbo build && pnpm --filter prisma-generate-uml publish"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "turbo": "^2.5.4"
+    "turbo": "2.9.4"
   },
-  "packageManager": "npm@11.4.2"
+  "packageManager": "pnpm@10.33.0"
 }

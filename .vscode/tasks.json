@@ -4,7 +4,7 @@
     {
       "label": "build",
       "type": "shell",
-      "command": "npm run build",
+      "command": "pnpm build",
       "options": {
         "cwd": "${workspaceFolder}/packages/prisma-generate-uml"
       },
@@ -20,7 +20,7 @@
     {
       "label": "watch",
       "type": "shell",
-      "command": "npm run esbuild -- --watch",
+      "command": "pnpm esbuild:watch",
       "options": {
         "cwd": "${workspaceFolder}/packages/prisma-generate-uml"
       },
