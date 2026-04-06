@@ -1,7 +1,3 @@
-// A launch configuration that launches the extension inside a new window
-// Use IntelliSense to learn about possible attributes.
-// Hover to view descriptions of existing attributes.
-// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 {
   "version": "0.2.0",
   "configurations": [
@@ -9,18 +5,13 @@
       "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/prisma-generate-uml"],
-      "outFiles": ["${workspaceFolder}/packages/prisma-generate-uml/dist/**/*.js"],
-      "preLaunchTask": "${defaultBuildTask}"
-    },
-    {
-      "name": "Extension Tests",
-      "type": "extensionHost",
-      "request": "launch",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/packages/prisma-generate-uml",
-        "--extensionTestsPath=${workspaceFolder}/packages/prisma-generate-uml/test/suite/index"
-      ]
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/prisma-generate-uml"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/packages/prisma-generate-uml/dist/**/*.js"
+      ],
+      "preLaunchTask": "build"
     }
   ]
 }
