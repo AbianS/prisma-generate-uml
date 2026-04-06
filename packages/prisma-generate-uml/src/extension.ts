@@ -1,4 +1,4 @@
-import { getDMMF, getSchemaWithPath } from '@prisma/internals';
+import { getDMMF } from '@prisma/internals';
 import * as vscode from 'vscode';
 import { transformDmmfToModelsAndConnections } from './core/render';
 import { PrismaUMLPanel } from './panels/prisma-uml-panel';
@@ -47,6 +47,23 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(onDidSaveDisposable);
 }
 
+/**
+ * Removes connection-specific fields from datasource blocks so the v7 WASM
+ * parser accepts v6 schemas. The `provider` field is intentionally kept so
+ * native type annotations (e.g. @db.Timestamptz) are validated correctly.
+ */
+function stripDatasourceConnectionFields(schema: string): string {
+  return schema.replace(
+    /^\s*(?:url|directUrl|shadowDatabaseUrl)\s*=\s*.+$/gm,
+    '',
+  );
+}
+
+async function readSchema(uri: vscode.Uri): Promise<string> {
+  const bytes = await vscode.workspace.fs.readFile(uri);
+  return stripDatasourceConnectionFields(new TextDecoder().decode(bytes));
+}
+
 async function generateUMLForPrismaFile(
   context: vscode.ExtensionContext,
   fileUri: vscode.Uri,
@@ -56,8 +73,8 @@ async function generateUMLForPrismaFile(
   let response: Awaited<ReturnType<typeof getDMMF>> | null = null;
 
   try {
-    const schemaResultFromFile = await getSchemaWithPath(fileUri.fsPath);
-    response = await getDMMF({ datamodel: schemaResultFromFile.schemas });
+    const content = await readSchema(fileUri);
+    response = await getDMMF({ datamodel: content });
     outputChannel.appendLine('Successfully parsed schema from file');
   } catch (err) {
     outputChannel.appendLine(
@@ -67,8 +84,8 @@ async function generateUMLForPrismaFile(
 
   if (!response) {
     try {
-      const schemaResultFromDir = await getSchemaWithPath(folderUri.fsPath);
-      response = await getDMMF({ datamodel: schemaResultFromDir.schemas });
+      const content = await readSchema(folderUri);
+      response = await getDMMF({ datamodel: content });
       outputChannel.appendLine('Successfully parsed schema from directory');
     } catch (err) {
       outputChannel.appendLine(
