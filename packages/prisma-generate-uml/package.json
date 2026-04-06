@@ -51,8 +51,8 @@
     "pretest": "pnpm compile",
     "test": "vscode-test",
     "clean": "rm -rf dist webview-ui node_modules/.cache",
-    "package": "vsce package",
-    "publish": "vsce publish"
+    "package": "vsce package --no-dependencies",
+    "publish": "vsce publish --no-dependencies"
   },
   "devDependencies": {
     "@prisma/prisma-schema-wasm": "7.6.0-1.75cbdc1eb7150937890ad5465d861175c6624711",
