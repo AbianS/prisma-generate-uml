@@ -7,6 +7,7 @@ export type Model = {
     type: string;
     hasConnections?: boolean;
     isPrimary?: boolean;
+    isEnum?: boolean;
   }[];
   isChild?: boolean;
 };

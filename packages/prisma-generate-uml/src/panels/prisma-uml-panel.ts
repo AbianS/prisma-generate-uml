@@ -74,7 +74,7 @@ export class PrismaUMLPanel {
       const panel = vscode.window.createWebviewPanel(
         PrismaUMLPanel.viewType,
         'Prisma Schema UML',
-        vscode.ViewColumn.Two,
+        vscode.ViewColumn.One,
         {
           enableScripts: true,
           retainContextWhenHidden: true,

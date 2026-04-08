@@ -1,4 +1,4 @@
-import { NodeProps } from '@xyflow/react';
+import { Handle, NodeProps, Position } from '@xyflow/react';
 import { memo } from 'react';
 import { useTheme } from '../lib/contexts/theme';
 import { useSettings } from '../lib/contexts/settings';
@@ -21,6 +21,17 @@ export const EnumNode = memo(({ data, selected }: NodeProps<EnumNodeTye>) => {
           : 'hover:shadow-lg',
       ].join(' ')}
     >
+      <Handle
+        id={`${data.name}-target`}
+        position={Position.Left}
+        type="target"
+        style={{
+          top: '50%',
+          transform: 'translateY(-50%)',
+          borderColor: '#06d6a0',
+        }}
+      />
+
       <div
         className="px-3 py-2 text-center"
         style={{

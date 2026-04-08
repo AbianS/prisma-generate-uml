@@ -23,7 +23,9 @@ export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<MyNode>(
     initialNodes.map((n) => ({ ...n, style: { opacity: 0 } })),
   );
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
+    initialEdges.map((e) => ({ ...e, style: { ...e.style, opacity: 0 } })),
+  );
   const [selectedLayout, setSelectedLayout] =
     useState<LayoutDirection>(DEFAULT_LAYOUT);
 
@@ -55,28 +57,32 @@ export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
         style: { ...n.style, opacity: 0 },
       })),
     );
-    setEdges(initialEdges);
+    setEdges(
+      initialEdges.map((e) => ({ ...e, style: { ...e.style, opacity: 0 } })),
+    );
     needsLayoutRef.current = true;
   }, [initialNodes, initialEdges, setNodes, setEdges]);
 
-  // Run layout once React Flow has measured all visible nodes
+  // Run ELK layout once React Flow has measured all visible nodes
   useEffect(() => {
     if (!nodesInitialized || !needsLayoutRef.current) return;
     needsLayoutRef.current = false;
 
     const measuredNodes = getNodes() as MyNode[];
-    const { nodes: laid, edges: laidEdges } = getLayoutedElements(
-      measuredNodes,
-      edges,
-      selectedLayout,
-    );
 
-    setNodes(laid.map((n) => ({ ...n, style: { ...n.style, opacity: 1 } })));
-    setEdges(laidEdges);
-
-    setTimeout(
-      () => fitView({ padding: 0.15, minZoom: 0.05, duration: 600 }),
-      50,
+    getLayoutedElements(measuredNodes, edges, selectedLayout).then(
+      ({ nodes: laid, edges: laidEdges }) => {
+        setNodes(
+          laid.map((n) => ({ ...n, style: { ...n.style, opacity: 1 } })),
+        );
+        setEdges(
+          laidEdges.map((e) => ({ ...e, style: { ...e.style, opacity: 1 } })),
+        );
+        setTimeout(
+          () => fitView({ padding: 0.15, minZoom: 0.05, duration: 600 }),
+          50,
+        );
+      },
     );
     // intentionally omitting nodes/edges/selectedLayout from deps to avoid loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,16 +91,17 @@ export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
   const onLayout = useCallback(
     (direction: LayoutDirection) => {
       setSelectedLayout(direction);
-      const { nodes: laid, edges: laidEdges } = getLayoutedElements(
-        nodes,
-        edges,
-        direction,
-      );
-      setNodes(laid);
-      setEdges(laidEdges);
-      setTimeout(
-        () => fitView({ padding: 0.15, minZoom: 0.05, duration: 600 }),
-        50,
+      getLayoutedElements(nodes, edges, direction).then(
+        ({ nodes: laid, edges: laidEdges }) => {
+          setNodes(laid);
+          setEdges(
+            laidEdges.map((e) => ({ ...e, style: { ...e.style, opacity: 1 } })),
+          );
+          setTimeout(
+            () => fitView({ padding: 0.15, minZoom: 0.05, duration: 600 }),
+            50,
+          );
+        },
       );
     },
     [nodes, edges, setNodes, setEdges, fitView],

@@ -25,7 +25,7 @@ export function useConnectionHighlight() {
         setEdges(
           allEdges.map((e) => ({
             ...e,
-            style: { ...e.style, opacity: 1, strokeWidth: 2 },
+            style: { ...e.style, opacity: 1 },
           })),
         );
         return;
@@ -63,7 +63,6 @@ export function useConnectionHighlight() {
           style: {
             ...e.style,
             opacity: connectedEdgeIds.has(e.id) ? 1 : DIM_OPACITY,
-            strokeWidth: connectedEdgeIds.has(e.id) ? 3 : 2,
           },
         })),
       );

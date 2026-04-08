@@ -1,23 +1,24 @@
 import {
   BaseEdge,
-  Edge,
   EdgeLabelRenderer,
   EdgeProps,
   getSmoothStepPath,
+  type Edge,
 } from '@xyflow/react';
 import { type RelationType } from '../../lib/types/schema';
 
 const RELATION_COLORS: Record<RelationType, string> = {
-  ONE_TO_ONE: '#10b981', // emerald
-  ONE_TO_MANY: '#6366f1', // indigo
-  MANY_TO_MANY: '#f59e0b', // amber
+  ONE_TO_ONE: '#06d6a0', // teal
+  ONE_TO_MANY: '#818cf8', // indigo
+  MANY_TO_MANY: '#fbbf24', // amber
 };
 
-const DEFAULT_COLOR = '#64748b'; // slate
+const DEFAULT_COLOR = '#94a3b8'; // slate
 
 type RelationEdgeData = Edge<{
   relationType?: RelationType;
   label?: string;
+  bidirectional?: boolean;
 }>;
 
 export function RelationEdge({
@@ -33,6 +34,7 @@ export function RelationEdge({
   selected,
 }: EdgeProps<RelationEdgeData>) {
   const relationType = data?.relationType as RelationType | undefined;
+  const bidirectional = data?.bidirectional ?? false;
   const color = relationType ? RELATION_COLORS[relationType] : DEFAULT_COLOR;
   const strokeWidth = selected ? 3 : 2;
   const opacity = (style as React.CSSProperties).opacity ?? 1;
@@ -47,7 +49,7 @@ export function RelationEdge({
     borderRadius: 8,
   });
 
-  const markerId = `arrow-${relationType ?? 'default'}`;
+  const markerId = `arrow-${relationType ?? 'default'}-${id}`;
 
   return (
     <>
@@ -55,10 +57,10 @@ export function RelationEdge({
         <marker
           id={markerId}
           viewBox="0 0 10 10"
-          refX="9"
+          refX="10"
           refY="5"
-          markerWidth="7"
-          markerHeight="7"
+          markerWidth="8"
+          markerHeight="8"
           orient="auto-start-reverse"
         >
           <path d="M 0 0 L 10 5 L 0 10 z" fill={color} />
@@ -69,6 +71,7 @@ export function RelationEdge({
         id={id}
         path={edgePath}
         markerEnd={`url(#${markerId})`}
+        markerStart={bidirectional ? `url(#${markerId})` : undefined}
         style={{
           stroke: color,
           strokeWidth,

@@ -92,81 +92,101 @@ export const ModelNode = memo(({ data, selected }: NodeProps<ModelNodeTye>) => {
 
       {/* Fields */}
       <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800">
-        {data.fields.map(({ type, name, hasConnections, isPrimary }, index) => (
-          <div
-            key={name}
-            className={[
-              'relative flex items-center gap-2 px-3 py-1.5 text-xs',
-              isDarkMode
-                ? index % 2 === 0
-                  ? 'bg-[#252525]'
-                  : 'bg-[#1e1e1e]'
-                : index % 2 === 0
-                  ? 'bg-gray-50'
-                  : 'bg-white',
-            ].join(' ')}
-          >
-            {/* Field icon */}
-            {settings.showFieldIcons && (
-              <span
-                className={
-                  isPrimary
-                    ? 'text-amber-400 flex-shrink-0'
-                    : isDarkMode
-                      ? 'text-gray-500 flex-shrink-0'
-                      : 'text-gray-400 flex-shrink-0'
-                }
-              >
-                {isPrimary ? <Key size={13} /> : getIconForType(type)}
-              </span>
-            )}
-
-            {/* Field name */}
-            <span
+        {data.fields.map(
+          ({ type, name, hasConnections, isPrimary, isEnum }, index) => (
+            <div
+              key={name}
               className={[
-                'font-medium truncate',
-                isPrimary
-                  ? 'text-amber-400'
-                  : isDarkMode
-                    ? 'text-gray-200'
-                    : 'text-gray-700',
+                'relative flex items-center gap-2 px-3 py-1.5 text-xs',
+                isDarkMode
+                  ? index % 2 === 0
+                    ? 'bg-[#252525]'
+                    : 'bg-[#1e1e1e]'
+                  : index % 2 === 0
+                    ? 'bg-gray-50'
+                    : 'bg-white',
               ].join(' ')}
-              title={name}
             >
-              {name}
-            </span>
+              {/* Field icon */}
+              {settings.showFieldIcons && (
+                <span
+                  className={
+                    isPrimary
+                      ? 'text-amber-400 flex-shrink-0'
+                      : isDarkMode
+                        ? 'text-gray-500 flex-shrink-0'
+                        : 'text-gray-400 flex-shrink-0'
+                  }
+                >
+                  {isPrimary ? <Key size={13} /> : getIconForType(type)}
+                </span>
+              )}
 
-            {/* Field type */}
-            {settings.showFieldTypes && (
+              {/* Field name */}
               <span
                 className={[
-                  'ml-auto font-mono text-[10px] flex-shrink-0',
-                  isDarkMode ? 'text-gray-500' : 'text-gray-400',
+                  'font-medium truncate',
+                  isPrimary
+                    ? 'text-amber-400'
+                    : isDarkMode
+                      ? 'text-gray-200'
+                      : 'text-gray-700',
                 ].join(' ')}
-                title={type}
+                title={name}
               >
-                {type}
+                {name}
               </span>
-            )}
 
-            {/* Source handle — positioned relative to this row */}
-            {hasConnections && (
-              <Handle
-                position={Position.Right}
-                id={`${data.name}-${name}-source`}
-                type="source"
-                style={{
-                  position: 'absolute',
-                  right: -6,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  width: 10,
-                  height: 10,
-                }}
-              />
-            )}
-          </div>
-        ))}
+              {/* Field type */}
+              {settings.showFieldTypes && (
+                <span
+                  className={[
+                    'ml-auto font-mono text-[10px] flex-shrink-0',
+                    isDarkMode ? 'text-gray-500' : 'text-gray-400',
+                  ].join(' ')}
+                  title={type}
+                >
+                  {type}
+                </span>
+              )}
+
+              {/* Source handle for model relations */}
+              {hasConnections && (
+                <Handle
+                  position={Position.Right}
+                  id={`${data.name}-${name}-source`}
+                  type="source"
+                  style={{
+                    position: 'absolute',
+                    right: -6,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: 10,
+                    height: 10,
+                  }}
+                />
+              )}
+
+              {/* Source handle for enum fields */}
+              {isEnum && (
+                <Handle
+                  position={Position.Right}
+                  id={`${data.name}-${name}-enum-source`}
+                  type="source"
+                  style={{
+                    position: 'absolute',
+                    right: -6,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: 10,
+                    height: 10,
+                    borderColor: '#06d6a0',
+                  }}
+                />
+              )}
+            </div>
+          ),
+        )}
       </div>
     </div>
   );

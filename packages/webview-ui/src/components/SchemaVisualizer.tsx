@@ -47,15 +47,23 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
   const filter = useFilter();
 
   // ── Build raw nodes ────────────────────────────────────────────────────
+  const enumNames = useMemo(() => new Set(enums.map((e) => e.name)), [enums]);
+
   const allModelNodes = useMemo<MyNode[]>(
     () =>
       models.map((model) => ({
         id: model.name,
-        data: model,
+        data: {
+          ...model,
+          fields: model.fields.map((f) => ({
+            ...f,
+            isEnum: enumNames.has(f.type),
+          })),
+        },
         type: 'model' as const,
         position: { x: 0, y: 0 },
       })),
-    [models],
+    [models, enumNames],
   );
 
   const allEnumNodes = useMemo<MyNode[]>(
@@ -69,29 +77,72 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
     [enums],
   );
 
-  const allEdges = useMemo<Edge[]>(
-    () =>
-      connections.map((connection) => {
-        const sourceNodeId = connection.source.split('-')[0];
-        const targetNodeId = connection.target.split('-')[0];
-        return {
-          id: `${connection.source}-${connection.target}`,
-          source: sourceNodeId,
-          target: targetNodeId,
-          sourceHandle: connection.source,
-          targetHandle: connection.target,
+  const allEdges = useMemo<Edge[]>(() => {
+    // Group connections by sorted node-pair to detect bidirectional relations.
+    // Prisma always defines both sides of a relation, so A→B and B→A appear as
+    // two separate connections. We merge them into one edge with arrows on both
+    // ends to avoid ELK treating one as a back-edge (which causes U-turns).
+    const pairMap = new Map<string, typeof connections>();
+    connections.forEach((conn) => {
+      const src = conn.source.split('-')[0];
+      const tgt = conn.target.split('-')[0];
+      if (src === tgt) return; // skip self-loops
+      const key = [src, tgt].sort().join('|||');
+      if (!pairMap.has(key)) pairMap.set(key, []);
+      pairMap.get(key)!.push(conn);
+    });
+
+    const edges: Edge[] = [];
+    const seen = new Set<string>();
+
+    connections.forEach((connection) => {
+      const sourceNodeId = connection.source.split('-')[0];
+      const targetNodeId = connection.target.split('-')[0];
+      if (sourceNodeId === targetNodeId) return;
+      const key = [sourceNodeId, targetNodeId].sort().join('|||');
+      if (seen.has(key)) return;
+      seen.add(key);
+
+      const pair = pairMap.get(key)!;
+      const bidirectional = pair.length > 1;
+
+      edges.push({
+        id: `${connection.source}-${connection.target}`,
+        source: sourceNodeId,
+        target: targetNodeId,
+        sourceHandle: connection.source,
+        targetHandle: connection.target,
+        type: 'relation',
+        data: {
+          relationType: (connection.relationType ?? undefined) as
+            | RelationType
+            | undefined,
+          label: connection.name,
+          bidirectional,
+        },
+        style: { transition: 'opacity 0.2s ease' },
+      });
+    });
+
+    // ── Enum edges: model field → enum node ──────────────────────────────
+    models.forEach((model) => {
+      model.fields.forEach((field) => {
+        if (!enumNames.has(field.type)) return;
+        edges.push({
+          id: `${model.name}-${field.name}-enum-${field.type}`,
+          source: model.name,
+          target: field.type,
+          sourceHandle: `${model.name}-${field.name}-enum-source`,
+          targetHandle: `${field.type}-target`,
           type: 'relation',
-          data: {
-            relationType: (connection.relationType ?? undefined) as
-              | RelationType
-              | undefined,
-            label: connection.name,
-          },
+          data: { label: field.name },
           style: { transition: 'opacity 0.2s ease' },
-        };
-      }),
-    [connections],
-  );
+        });
+      });
+    });
+
+    return edges;
+  }, [connections, models, enumNames]);
 
   // ── Apply filter (focus + search + manual hide) ────────────────────────
   const { filteredNodes, filteredEdges } = useMemo(() => {
