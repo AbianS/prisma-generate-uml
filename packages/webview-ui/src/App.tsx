@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { SchemaVisualizer } from './components/SchemaVisualizer';
 import { ThemeProvider } from './lib/contexts/theme';
 import { SettingsProvider } from './lib/contexts/settings';
+import { FilterProvider } from './lib/contexts/filter';
 import {
   ColorThemeKind,
   Enum,
@@ -48,19 +49,29 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <SettingsProvider>
-        <ReactFlowProvider>
-          {models.length > 0 && connections.length > 0 ? (
-            <SchemaVisualizer
-              models={models}
-              connections={connections}
-              enums={enums}
-            />
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'var(--vscode-foreground)' }}>
-              Loading schema...
-            </div>
-          )}
-        </ReactFlowProvider>
+        <FilterProvider>
+          <ReactFlowProvider>
+            {models.length > 0 ? (
+              <SchemaVisualizer
+                models={models}
+                connections={connections}
+                enums={enums}
+              />
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100vh',
+                  color: 'var(--vscode-foreground)',
+                }}
+              >
+                Loading schema…
+              </div>
+            )}
+          </ReactFlowProvider>
+        </FilterProvider>
       </SettingsProvider>
     </ThemeProvider>
   );

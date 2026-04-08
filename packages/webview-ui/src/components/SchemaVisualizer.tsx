@@ -12,13 +12,23 @@ import {
 import { useMemo } from 'react';
 import { useSettings } from '../lib/contexts/settings';
 import { useTheme } from '../lib/contexts/theme';
+import { useFilter } from '../lib/contexts/filter';
 import { useGraph } from '../lib/hooks/useGraph';
-import { Enum, Model, ModelConnection } from '../lib/types/schema';
+import { useConnectionHighlight } from '../lib/hooks/useConnectionHighlight';
+import {
+  Enum,
+  Model,
+  ModelConnection,
+  MyNode,
+  RelationType,
+} from '../lib/types/schema';
+import { bfsNeighbors } from '../lib/utils/graph-utils';
 import { maskColor, nodeColor, nodeStrokeColor } from '../lib/utils/colots';
 import { screenshot } from '../lib/utils/screnshot';
 import { EnumNode } from './EnumNode';
 import { ModelNode } from './ModelNode';
-import { SettingsPanel } from './SettingsPanel';
+import { RelationEdge } from './edges/RelationEdge';
+import { Sidebar } from './Sidebar';
 import { IDownload } from './icons/IDownload';
 
 interface Props {
@@ -27,60 +37,120 @@ interface Props {
   enums: Enum[];
 }
 
+const NODE_TYPES = { model: ModelNode, enum: EnumNode };
+const EDGE_TYPES = { relation: RelationEdge };
+
 export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
   const { isDarkMode } = useTheme();
   const { getNodes } = useReactFlow();
   const { settings } = useSettings();
+  const filter = useFilter();
 
-  const modelNodes = useMemo(() => {
-    return models.map((model) => ({
-      id: model.name,
-      data: model,
-      type: 'model',
-      position: { x: 0, y: 0 },
+  // ── Build raw nodes ────────────────────────────────────────────────────
+  const allModelNodes = useMemo<MyNode[]>(
+    () =>
+      models.map((model) => ({
+        id: model.name,
+        data: model,
+        type: 'model' as const,
+        position: { x: 0, y: 0 },
+      })),
+    [models],
+  );
+
+  const allEnumNodes = useMemo<MyNode[]>(
+    () =>
+      enums.map((enumItem) => ({
+        id: enumItem.name,
+        data: enumItem,
+        type: 'enum' as const,
+        position: { x: 0, y: 0 },
+      })),
+    [enums],
+  );
+
+  const allEdges = useMemo<Edge[]>(
+    () =>
+      connections.map((connection) => {
+        const sourceNodeId = connection.source.split('-')[0];
+        const targetNodeId = connection.target.split('-')[0];
+        return {
+          id: `${connection.source}-${connection.target}`,
+          source: sourceNodeId,
+          target: targetNodeId,
+          sourceHandle: connection.source,
+          targetHandle: connection.target,
+          type: 'relation',
+          data: {
+            relationType: (connection.relationType ?? undefined) as
+              | RelationType
+              | undefined,
+            label: connection.name,
+          },
+          style: { transition: 'opacity 0.2s ease' },
+        };
+      }),
+    [connections],
+  );
+
+  // ── Apply filter (focus + search + manual hide) ────────────────────────
+  const { filteredNodes, filteredEdges } = useMemo(() => {
+    const allNodes = [...allModelNodes, ...allEnumNodes];
+    const query = filter.searchQuery.trim().toLowerCase();
+
+    // Compute focus-visible set via BFS
+    let focusIds: Set<string> | null = null;
+    if (filter.focusedNodeId) {
+      focusIds = bfsNeighbors(
+        filter.focusedNodeId,
+        allEdges,
+        filter.focusDepth,
+      );
+    }
+
+    const fNodes = allNodes.map((node) => {
+      const matchesSearch = !query || node.id.toLowerCase().includes(query);
+      const matchesFocus = !focusIds || focusIds.has(node.id);
+      const notHidden = !filter.hiddenNodeIds.has(node.id);
+      return { ...node, hidden: !(matchesSearch && matchesFocus && notHidden) };
+    });
+
+    const visibleNodeIds = new Set(
+      fNodes.filter((n) => !n.hidden).map((n) => n.id),
+    );
+    const fEdges = allEdges.map((edge) => ({
+      ...edge,
+      hidden:
+        !visibleNodeIds.has(edge.source) || !visibleNodeIds.has(edge.target),
     }));
-  }, [models]);
 
-  const enumNodes = useMemo(() => {
-    return enums.map((enumItem) => ({
-      id: enumItem.name,
-      data: enumItem,
-      type: 'enum',
-      position: { x: 0, y: 0 },
-    }));
-  }, [enums]);
+    return { filteredNodes: fNodes, filteredEdges: fEdges };
+  }, [
+    allModelNodes,
+    allEnumNodes,
+    allEdges,
+    filter.focusedNodeId,
+    filter.focusDepth,
+    filter.searchQuery,
+    filter.hiddenNodeIds,
+  ]);
 
-  const edges: Edge[] = useMemo(() => {
-    return connections.map((connection) => ({
-      id: `${connection.source}-${connection.target}`,
-      source: connection.source.split('-')[0],
-      target: connection.target.split('-')[0],
-      sourceHandle: connection.source,
-      targetHandle: connection.target,
-      animated: false,
-
-      style: {
-        stroke: isDarkMode ? '#ffffff' : '#000000',
-        strokeWidth: 2,
-        strokeOpacity: 0.5,
-        strokeLinejoin: 'round',
-        strokeLinecap: 'round',
-        strokeDasharray: '5',
-        strokeDashoffset: 0,
-        fill: 'none',
-      },
-    }));
-  }, [connections]);
-
+  // ── Layout ─────────────────────────────────────────────────────────────
   const {
     nodes,
     edges: edgesState,
     onNodesChange,
     onEdgesChange,
     onConnect,
-  } = useGraph([...modelNodes, ...enumNodes], edges, settings);
+    onLayout,
+    selectedLayout,
+  } = useGraph(filteredNodes, filteredEdges);
 
-  const getBackgroundVariant = () => {
+  // ── Connection highlighting on selection ───────────────────────────────
+  useConnectionHighlight();
+
+  // ── Background variant ─────────────────────────────────────────────────
+  const bgVariant = useMemo(() => {
     switch (settings.backgroundVariant) {
       case 'dots':
         return BackgroundVariant.Dots;
@@ -89,67 +159,78 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
       default:
         return BackgroundVariant.Lines;
     }
-  };
+  }, [settings.backgroundVariant]);
 
-  // Set CSS variables for dynamic theming
   const containerStyle = {
-    '--background-color':
-      settings.theme.backgroundColor || (isDarkMode ? '#1c1c1c' : '#e0e0e0'),
     '--primary-color': settings.theme.primaryColor,
     '--secondary-color': settings.theme.secondaryColor,
     '--title-color': settings.theme.titleColor,
+    '--background-color':
+      settings.theme.backgroundColor || (isDarkMode ? '#111111' : '#f5f5f5'),
   } as React.CSSProperties;
 
   return (
     <div
-      className="h-[100vh] w-full relative dynamic-background"
+      className="h-[100vh] w-full flex flex-row dynamic-background"
       style={containerStyle}
     >
-      <ReactFlow
-        onlyRenderVisibleElements
-        colorMode={isDarkMode ? 'dark' : 'light'}
-        nodes={nodes}
+      {/* ── Sidebar ── */}
+      <Sidebar
+        models={models}
+        enums={enums}
         edges={edgesState}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={{ model: ModelNode, enum: EnumNode }}
-        connectionLineType={ConnectionLineType.SmoothStep}
-        minZoom={0.2}
-      >
-        <Controls>
-          <ControlButton
-            title="Download Screenshot"
-            onClick={() => screenshot(getNodes as any)}
-          >
-            <IDownload color={isDarkMode ? 'white' : 'black'} />
-          </ControlButton>
-        </Controls>
+        selectedLayout={selectedLayout}
+        onLayoutChange={onLayout}
+      />
 
-        <MiniMap
-          nodeStrokeWidth={3}
-          zoomable
-          pannable
-          nodeColor={nodeColor(isDarkMode)}
-          nodeStrokeColor={nodeStrokeColor(isDarkMode)}
-          maskColor={maskColor(isDarkMode)}
-          style={{
-            backgroundColor: settings.theme.backgroundColor,
-            display: settings.showMinimap ? 'block' : 'none',
-          }}
-        />
+      {/* ── Canvas ── */}
+      <div className="flex-1 relative overflow-hidden">
+        <ReactFlow
+          onlyRenderVisibleElements
+          colorMode={isDarkMode ? 'dark' : 'light'}
+          nodes={nodes}
+          edges={edgesState}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={NODE_TYPES}
+          edgeTypes={EDGE_TYPES}
+          connectionLineType={ConnectionLineType.SmoothStep}
+          minZoom={0.05}
+          maxZoom={2}
+        >
+          <Controls>
+            <ControlButton
+              title="Download Screenshot"
+              onClick={() => screenshot(getNodes as any)}
+            >
+              <IDownload color={isDarkMode ? 'white' : 'black'} />
+            </ControlButton>
+          </Controls>
 
-        <Background
-          color={isDarkMode ? '#222' : '#ccc'}
-          variant={getBackgroundVariant()}
-          style={{
-            opacity: settings.showBackground ? 1 : 0,
-            pointerEvents: settings.showBackground ? 'auto' : 'none',
-          }}
-        />
-      </ReactFlow>
+          <MiniMap
+            nodeStrokeWidth={3}
+            zoomable
+            pannable
+            nodeColor={nodeColor(isDarkMode)}
+            nodeStrokeColor={nodeStrokeColor(isDarkMode)}
+            maskColor={maskColor(isDarkMode)}
+            style={{
+              backgroundColor: settings.theme.backgroundColor,
+              display: settings.showMinimap ? 'block' : 'none',
+            }}
+          />
 
-      <SettingsPanel />
+          <Background
+            color={isDarkMode ? '#2a2a2a' : '#d0d0d0'}
+            variant={bgVariant}
+            style={{
+              opacity: settings.showBackground ? 1 : 0,
+              pointerEvents: settings.showBackground ? 'auto' : 'none',
+            }}
+          />
+        </ReactFlow>
+      </div>
     </div>
   );
 };

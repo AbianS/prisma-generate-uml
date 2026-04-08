@@ -1,139 +1,118 @@
-import equal from 'fast-deep-equal';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getLayoutedElements } from '../utils/layout-utils';
 import {
   addEdge,
   Connection,
   ConnectionLineType,
   Edge,
   useEdgesState,
+  useNodesInitialized,
   useNodesState,
   useReactFlow,
 } from '@xyflow/react';
+import {
+  getLayoutedElements,
+  type LayoutDirection,
+} from '../utils/layout-utils';
 import { MyNode } from '../types/schema';
-import { DiagramSettings } from '../contexts/settings';
 
-const DEFAULT_LAYOUT = 'TB';
+const DEFAULT_LAYOUT: LayoutDirection = 'LR';
 
-export const useGraph = (
-  initialNodes: MyNode[],
-  initialEdges: Edge[],
-  settings: DiagramSettings,
-) => {
-  const { fitView } = useReactFlow();
+export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
+  const { fitView, getNodes } = useReactFlow();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
-  const [selectedLayout, setSelectedLayout] = useState<string>(DEFAULT_LAYOUT);
-
-  const [shouldFitView, setShouldFitView] = useState(false);
-  const [isReady, setIsReady] = useState(false);
-
-  const isFirstRender = useRef(true);
-
-  const applyLayout = useCallback(
-    (
-      layoutDirection: string,
-      fromNodes = nodes,
-      fromEdges = edges,
-      isInitial = false,
-    ) => {
-      const { nodes: layoutedNodes, edges: layoutedEdges } =
-        getLayoutedElements(fromNodes, fromEdges, layoutDirection);
-      setNodes(layoutedNodes);
-      setEdges(layoutedEdges);
-
-      if (isInitial) {
-        // For initial render, be more direct but still use better settings
-        setIsReady(true);
-        setShouldFitView(true);
-      } else {
-        setShouldFitView(true);
-      }
-    },
-    [nodes, edges, setNodes, setEdges],
+  const [nodes, setNodes, onNodesChange] = useNodesState<MyNode>(
+    initialNodes.map((n) => ({ ...n, style: { opacity: 0 } })),
   );
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [selectedLayout, setSelectedLayout] =
+    useState<LayoutDirection>(DEFAULT_LAYOUT);
+
+  // nodesInitialized becomes true after React Flow has measured all visible nodes
+  const nodesInitialized = useNodesInitialized({ includeHiddenNodes: false });
+
+  // Track whether a layout pass is pending
+  const needsLayoutRef = useRef(true);
+
+  // Track the previous input signature to detect changes
+  const prevSignatureRef = useRef('');
+
+  // When input nodes/edges change, reset positions and flag for re-layout
+  useEffect(() => {
+    if (!initialNodes.length && !initialEdges.length) return;
+
+    const signature =
+      initialNodes.map((n) => n.id + (n.hidden ? ':h' : '')).join(',') +
+      '|' +
+      initialEdges.map((e) => e.id).join(',');
+
+    if (signature === prevSignatureRef.current) return;
+    prevSignatureRef.current = signature;
+
+    setNodes(
+      initialNodes.map((n) => ({
+        ...n,
+        position: { x: 0, y: 0 },
+        style: { ...n.style, opacity: 0 },
+      })),
+    );
+    setEdges(initialEdges);
+    needsLayoutRef.current = true;
+  }, [initialNodes, initialEdges, setNodes, setEdges]);
+
+  // Run layout once React Flow has measured all visible nodes
+  useEffect(() => {
+    if (!nodesInitialized || !needsLayoutRef.current) return;
+    needsLayoutRef.current = false;
+
+    const measuredNodes = getNodes() as MyNode[];
+    const { nodes: laid, edges: laidEdges } = getLayoutedElements(
+      measuredNodes,
+      edges,
+      selectedLayout,
+    );
+
+    setNodes(laid.map((n) => ({ ...n, style: { ...n.style, opacity: 1 } })));
+    setEdges(laidEdges);
+
+    setTimeout(
+      () => fitView({ padding: 0.15, minZoom: 0.05, duration: 600 }),
+      50,
+    );
+    // intentionally omitting nodes/edges/selectedLayout from deps to avoid loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodesInitialized]);
 
   const onLayout = useCallback(
-    (direction: string) => {
-      applyLayout(direction);
+    (direction: LayoutDirection) => {
       setSelectedLayout(direction);
+      const { nodes: laid, edges: laidEdges } = getLayoutedElements(
+        nodes,
+        edges,
+        direction,
+      );
+      setNodes(laid);
+      setEdges(laidEdges);
+      setTimeout(
+        () => fitView({ padding: 0.15, minZoom: 0.05, duration: 600 }),
+        50,
+      );
     },
-    [applyLayout],
+    [nodes, edges, setNodes, setEdges, fitView],
   );
-
-  // Apply layout from settings automatically
-  useEffect(() => {
-    if (settings?.layout && settings.layout !== selectedLayout) {
-      applyLayout(settings.layout);
-      setSelectedLayout(settings.layout);
-    }
-  }, [settings?.layout, selectedLayout, applyLayout]);
 
   const onConnect = useCallback(
     (params: Connection) => {
       setEdges((eds) =>
-        addEdge(
-          {
-            ...params,
-            type: ConnectionLineType.SmoothStep,
-            animated: true,
-          },
-          eds,
-        ),
+        addEdge({ ...params, type: ConnectionLineType.SmoothStep }, eds),
       );
     },
     [setEdges],
   );
 
+  // Remove the React Flow attribution badge
   useEffect(() => {
-    if (!initialNodes?.length && !initialEdges?.length) return;
-
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      applyLayout(DEFAULT_LAYOUT, initialNodes, initialEdges, true);
-      return;
-    }
-
-    const nodesChanged = !equal(
-      initialNodes.map((n) => n.data),
-      nodes.map((n) => n.data),
-    );
-    const edgesChanged = !equal(
-      initialEdges.map((e) => ({ source: e.source, target: e.target })),
-      edges.map((e) => ({ source: e.source, target: e.target })),
-    );
-
-    if (nodesChanged || edgesChanged) {
-      applyLayout(selectedLayout, initialNodes, initialEdges);
-    }
-  }, [initialNodes, initialEdges, applyLayout, selectedLayout, nodes, edges]);
-
-  useEffect(() => {
-    if (shouldFitView) {
-      // Use requestAnimationFrame to ensure the nodes are rendered before fitting view
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          fitView({
-            padding: 0.2,
-            minZoom: 0.1,
-            duration: 800,
-          });
-        }, 100);
-      });
-      setShouldFitView(false);
-    }
-  }, [shouldFitView, fitView, isReady]);
-
-  useEffect(() => {
-    const deleteDiv = document.getElementsByClassName(
-      'react-flow__panel react-flow__attribution bottom right',
-    );
-
-    if (deleteDiv.length > 0) {
-      deleteDiv[0].remove();
-    }
+    const el = document.querySelector('.react-flow__attribution');
+    el?.remove();
   }, []);
 
   return {

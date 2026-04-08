@@ -4,60 +4,54 @@ import { useTheme } from '../lib/contexts/theme';
 import { useSettings } from '../lib/contexts/settings';
 import { EnumNodeTye } from '../lib/types/schema';
 
-export const EnumNode = memo(({ data }: NodeProps<EnumNodeTye>) => {
+export const EnumNode = memo(({ data, selected }: NodeProps<EnumNodeTye>) => {
   const { isDarkMode } = useTheme();
   const { settings } = useSettings();
 
   return (
     <div
-      className={`
-        rounded-xl 
-        border 
-        ${isDarkMode ? 'border-gray-700 bg-[#1c1c1c]' : 'border-gray-300 bg-white'}
-        shadow-md 
-        overflow-hidden 
-        transition-shadow 
-        duration-300 
-        hover:shadow-lg
-        min-w-[150px]
-      `}
+      className={[
+        'rounded-xl border overflow-hidden shadow-md transition-all duration-200',
+        'min-w-[140px] max-w-[260px]',
+        isDarkMode
+          ? 'border-gray-700 bg-[#1c1c1c]'
+          : 'border-gray-200 bg-white',
+        selected
+          ? 'shadow-lg ring-2 ring-emerald-500 ring-offset-1'
+          : 'hover:shadow-lg',
+      ].join(' ')}
     >
       <div
-        className="p-2 text-center"
+        className="px-3 py-2 text-center"
         style={{
-          background: `linear-gradient(to right, ${settings.theme.enumColor}, ${settings.theme.enumColor}dd)`,
-          color: settings.theme.titleColor,
+          background: `linear-gradient(135deg, ${settings.theme.enumColor}, ${settings.theme.enumColor}cc)`,
         }}
       >
         <p
-          className="font-semibold tracking-wide"
+          className="font-semibold text-sm tracking-wide truncate"
           style={{ color: settings.theme.titleColor }}
+          title={data.name}
         >
-          <pre>{data.name}</pre>
+          {data.name}
         </p>
       </div>
 
-      <div className="flex flex-col divide-y divide-gray-200 dark:divide-gray-700">
+      <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800">
         {data.values.map((value, index) => (
           <div
             key={value}
-            className={`
-              px-3 py-2 
-              text-sm 
-              ${
-                isDarkMode
-                  ? index % 2 === 0
-                    ? 'bg-[#2a2a2a]'
-                    : 'bg-[#232323]'
-                  : index % 2 === 0
-                    ? 'bg-gray-50'
-                    : 'bg-white'
-              }
-              transition-colors 
-              duration-200
-            `}
+            className={[
+              'px-3 py-1.5 text-xs font-mono',
+              isDarkMode
+                ? index % 2 === 0
+                  ? 'bg-[#252525] text-gray-300'
+                  : 'bg-[#1e1e1e] text-gray-300'
+                : index % 2 === 0
+                  ? 'bg-gray-50 text-gray-700'
+                  : 'bg-white text-gray-700',
+            ].join(' ')}
           >
-            <pre className="whitespace-pre-wrap">{value}</pre>
+            {value}
           </div>
         ))}
       </div>

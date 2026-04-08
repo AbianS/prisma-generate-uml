@@ -3,3 +3,44 @@
 body {
   @apply p-0;
 }
+
+/* Edge label: show type badge on hover */
+.react-flow__edge:hover .edge-label__text {
+  opacity: 1 !important;
+}
+
+/* React Flow handle styles — make them look cleaner */
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid;
+  background: #1c1c1c;
+}
+
+.react-flow__handle-left {
+  border-color: #6366f1;
+}
+
+.react-flow__handle-right {
+  border-color: #6366f1;
+}
+
+/* Background color driven by CSS variable set on the container */
+.dynamic-background {
+  background-color: var(--background-color, #111111);
+}
+
+/* Sidebar scrollbar */
+.flex-1.overflow-y-auto::-webkit-scrollbar {
+  width: 4px;
+}
+
+.flex-1.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.flex-1.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.3);
+  border-radius: 2px;
+}

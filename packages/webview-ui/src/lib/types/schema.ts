@@ -6,14 +6,18 @@ export type Model = {
     name: string;
     type: string;
     hasConnections?: boolean;
+    isPrimary?: boolean;
   }[];
   isChild?: boolean;
 };
+
+export type RelationType = 'ONE_TO_ONE' | 'ONE_TO_MANY' | 'MANY_TO_MANY';
 
 export type ModelConnection = {
   target: string;
   source: string;
   name: string;
+  relationType?: RelationType;
 };
 
 export type Enum = {
