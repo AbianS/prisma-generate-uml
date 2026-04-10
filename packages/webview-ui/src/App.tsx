@@ -1,15 +1,15 @@
+import { ReactFlowProvider } from '@xyflow/react';
 import { useEffect, useState } from 'react';
 import { SchemaVisualizer } from './components/SchemaVisualizer';
-import { ThemeProvider } from './lib/contexts/theme';
-import { SettingsProvider } from './lib/contexts/settings';
 import { FilterProvider } from './lib/contexts/filter';
+import { SettingsProvider } from './lib/contexts/settings';
+import { ThemeProvider } from './lib/contexts/theme';
 import {
   ColorThemeKind,
   Enum,
   Model,
   ModelConnection,
 } from './lib/types/schema';
-import { ReactFlowProvider } from '@xyflow/react';
 import { getVsCodeApi } from './lib/utils/vscode-api';
 
 function App() {

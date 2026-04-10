@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { Edge } from '@xyflow/react';
 import {
   ArrowDown,
   ArrowLeft,
@@ -15,7 +15,7 @@ import {
   Search,
   X,
 } from 'lucide-react';
-import { Edge } from '@xyflow/react';
+import { useMemo, useState } from 'react';
 import { useFilter } from '../lib/contexts/filter';
 import { useSettings } from '../lib/contexts/settings';
 import { useTheme } from '../lib/contexts/theme';
@@ -140,6 +140,7 @@ export function Sidebar({
           />
           <input
             type="text"
+            aria-label="Search models"
             value={filter.searchQuery}
             onChange={(e) => filter.setSearchQuery(e.target.value)}
             placeholder="Search models…"
@@ -256,7 +257,6 @@ export function Sidebar({
                 isHidden={filter.hiddenNodeIds.has(e.name)}
                 isFocused={false}
                 onToggleHide={() => filter.toggleHideNode(e.name)}
-                onFocus={() => {}}
                 dark={dark}
                 accentColor="emerald"
               />
@@ -380,7 +380,7 @@ interface NodeListItemProps {
   isHidden: boolean;
   isFocused: boolean;
   onToggleHide: () => void;
-  onFocus: () => void;
+  onFocus?: () => void;
   dark: boolean;
   accentColor: 'indigo' | 'emerald';
 }
@@ -510,6 +510,7 @@ interface ToggleRowProps {
 
 function ToggleRow({ label, checked, onChange, dark }: ToggleRowProps) {
   return (
+    // biome-ignore lint/a11y/noLabelWithoutControl: label wraps a button[role=switch], which is a valid accessible pattern
     <label className="flex items-center justify-between gap-2 cursor-pointer">
       <span className={`text-xs ${dark ? 'text-gray-300' : 'text-gray-600'}`}>
         {label}

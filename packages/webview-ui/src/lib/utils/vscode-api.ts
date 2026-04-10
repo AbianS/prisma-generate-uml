@@ -13,7 +13,7 @@ export function getVsCodeApi(): VsCodeApi | null {
   if (vscodeApi) {
     return vscodeApi;
   }
-  
+
   try {
     if (typeof acquireVsCodeApi !== 'undefined') {
       vscodeApi = acquireVsCodeApi();
@@ -22,6 +22,6 @@ export function getVsCodeApi(): VsCodeApi | null {
   } catch (error) {
     console.error('Error acquiring VS Code API:', error);
   }
-  
+
   return null;
 }

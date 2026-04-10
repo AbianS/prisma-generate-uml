@@ -122,7 +122,7 @@ export class PrismaUMLPanel {
     this._models = models;
     this._connections = connections;
     this._enums = enums;
-    
+
     this._panel.webview.postMessage({
       command: 'setData',
       models,

@@ -1,6 +1,6 @@
-import ELK, { type ElkNode } from 'elkjs/lib/elk.bundled.js';
 import { Edge, Position } from '@xyflow/react';
-import { MyNode, Model } from '../types/schema';
+import ELK, { type ElkNode } from 'elkjs/lib/elk.bundled.js';
+import { Model, MyNode } from '../types/schema';
 
 export type LayoutDirection = 'TB' | 'LR' | 'BT' | 'RL';
 
@@ -12,6 +12,25 @@ const ELK_DIRECTION: Record<LayoutDirection, string> = {
   RL: 'LEFT',
   TB: 'DOWN',
   BT: 'UP',
+};
+
+// Per-direction ELK port sides and React Flow handle positions
+const PORT_SIDES: Record<LayoutDirection, { source: string; target: string }> =
+  {
+    LR: { source: 'EAST', target: 'WEST' },
+    RL: { source: 'WEST', target: 'EAST' },
+    TB: { source: 'SOUTH', target: 'NORTH' },
+    BT: { source: 'NORTH', target: 'SOUTH' },
+  };
+
+const HANDLE_POSITIONS: Record<
+  LayoutDirection,
+  { source: Position; target: Position }
+> = {
+  LR: { source: Position.Right, target: Position.Left },
+  RL: { source: Position.Left, target: Position.Right },
+  TB: { source: Position.Bottom, target: Position.Top },
+  BT: { source: Position.Top, target: Position.Bottom },
 };
 
 function isModelData(data: unknown): data is Model {
@@ -38,7 +57,7 @@ export async function getLayoutedElements(
   direction: LayoutDirection = 'LR',
 ): Promise<{ nodes: MyNode[]; edges: Edge[] }> {
   const elk = new ELK();
-  const isHorizontal = direction === 'LR' || direction === 'RL';
+  const portSides = PORT_SIDES[direction];
 
   const visibleNodes = nodes.filter((n) => !n.hidden);
   const visibleNodeIds = new Set(visibleNodes.map((n) => n.id));
@@ -56,14 +75,14 @@ export async function getLayoutedElements(
     if (isModelData(node.data)) {
       ports.push({
         id: `${node.id}-target`,
-        layoutOptions: { 'port.side': isHorizontal ? 'WEST' : 'NORTH' },
+        layoutOptions: { 'port.side': portSides.target },
       });
       node.data.fields
         .filter((f) => f.hasConnections)
         .forEach((f) => {
           ports.push({
             id: `${node.id}-${f.name}-source`,
-            layoutOptions: { 'port.side': isHorizontal ? 'EAST' : 'SOUTH' },
+            layoutOptions: { 'port.side': portSides.source },
           });
         });
       // Enum relation ports
@@ -72,13 +91,13 @@ export async function getLayoutedElements(
         .forEach((f) => {
           ports.push({
             id: `${node.id}-${f.name}-enum-source`,
-            layoutOptions: { 'port.side': isHorizontal ? 'EAST' : 'SOUTH' },
+            layoutOptions: { 'port.side': portSides.source },
           });
         });
     } else if (isEnumData(node.data)) {
       ports.push({
         id: `${node.id}-target`,
-        layoutOptions: { 'port.side': isHorizontal ? 'WEST' : 'NORTH' },
+        layoutOptions: { 'port.side': portSides.target },
       });
     }
 
@@ -121,14 +140,16 @@ export async function getLayoutedElements(
     (laid.children ?? []).map((n) => [n.id, { x: n.x ?? 0, y: n.y ?? 0 }]),
   );
 
+  const handlePositions = HANDLE_POSITIONS[direction];
+
   const layoutedNodes = nodes.map((node) => {
     const pos = nodePositions.get(node.id);
     if (node.hidden || !pos) return node;
     return {
       ...node,
       position: pos,
-      targetPosition: isHorizontal ? Position.Left : Position.Top,
-      sourcePosition: isHorizontal ? Position.Right : Position.Bottom,
+      targetPosition: handlePositions.target,
+      sourcePosition: handlePositions.source,
     };
   });
 

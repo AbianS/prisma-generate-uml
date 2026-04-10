@@ -10,11 +10,11 @@ import {
   useReactFlow,
 } from '@xyflow/react';
 import { useMemo } from 'react';
+import { useFilter } from '../lib/contexts/filter';
 import { useSettings } from '../lib/contexts/settings';
 import { useTheme } from '../lib/contexts/theme';
-import { useFilter } from '../lib/contexts/filter';
-import { useGraph } from '../lib/hooks/useGraph';
 import { useConnectionHighlight } from '../lib/hooks/useConnectionHighlight';
+import { useGraph } from '../lib/hooks/useGraph';
 import {
   Enum,
   Model,
@@ -22,13 +22,13 @@ import {
   MyNode,
   RelationType,
 } from '../lib/types/schema';
-import { bfsNeighbors } from '../lib/utils/graph-utils';
 import { maskColor, nodeColor, nodeStrokeColor } from '../lib/utils/colots';
+import { bfsNeighbors } from '../lib/utils/graph-utils';
 import { screenshot } from '../lib/utils/screnshot';
 import { EnumNode } from './EnumNode';
 import { ModelNode } from './ModelNode';
-import { RelationEdge } from './edges/RelationEdge';
 import { Sidebar } from './Sidebar';
+import { RelationEdge } from './edges/RelationEdge';
 import { IDownload } from './icons/IDownload';
 
 interface Props {
@@ -253,7 +253,7 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
           <Controls>
             <ControlButton
               title="Download Screenshot"
-              onClick={() => screenshot(getNodes as any)}
+              onClick={() => screenshot(getNodes)}
             >
               <IDownload color={isDarkMode ? 'white' : 'black'} />
             </ControlButton>

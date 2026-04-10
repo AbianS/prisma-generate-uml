@@ -1,6 +1,6 @@
 import { Leva, folder, useControls } from 'leva';
-import { useTheme } from '../lib/contexts/theme';
 import { useSettings } from '../lib/contexts/settings';
+import { useTheme } from '../lib/contexts/theme';
 
 export const SettingsPanel = () => {
   const { settings, updateSetting, updateTheme } = useSettings();

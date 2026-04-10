@@ -21,6 +21,9 @@ importers:
         specifier: 7.6.0
         version: 7.6.0(typescript@6.0.2)
     devDependencies:
+      '@prisma/dmmf':
+        specifier: 7.6.0
+        version: 7.6.0
       '@prisma/prisma-schema-wasm':
         specifier: 7.6.0-1.75cbdc1eb7150937890ad5465d861175c6624711
         version: 7.6.0-1.75cbdc1eb7150937890ad5465d861175c6624711
@@ -54,9 +57,6 @@ importers:
 
   packages/webview-ui:
     dependencies:
-      '@dagrejs/dagre':
-        specifier: 3.0.0
-        version: 3.0.0
       '@xyflow/react':
         specifier: 12.10.2
         version: 12.10.2(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -227,12 +227,6 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
-
-  '@dagrejs/dagre@3.0.0':
-    resolution: {integrity: sha512-ZzhnTy1rfuoew9Ez3EIw4L2znPGnYYhfn8vc9c4oB8iw6QAsszbiU0vRhlxWPFnmmNSFAkrYeF1PhM5m4lAN0Q==}
-
-  '@dagrejs/graphlib@4.0.1':
-    resolution: {integrity: sha512-IvcV6FduIIAmLwnH+yun+QtV36SC7mERqa86aClNqmMN09WhmPPYU8ckHrZBozErf+UvHPWOTJYaGYiIcs0DgA==}
 
   '@emnapi/core@1.9.2':
     resolution: {integrity: sha512-UC+ZhH3XtczQYfOlu3lNEkdW/p4dsJ1r/bP7H8+rhao3TTTMO1ATq/4DdIi23XuGoFY+Cz0JmCbdVl0hz9jZcA==}
@@ -3164,12 +3158,6 @@ snapshots:
 
   '@biomejs/cli-win32-x64@1.9.4':
     optional: true
-
-  '@dagrejs/dagre@3.0.0':
-    dependencies:
-      '@dagrejs/graphlib': 4.0.1
-
-  '@dagrejs/graphlib@4.0.1': {}
 
   '@emnapi/core@1.9.2':
     dependencies:

@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  addEdge,
   Connection,
   ConnectionLineType,
   Edge,
+  addEdge,
   useEdgesState,
   useNodesInitialized,
   useNodesState,
   useReactFlow,
 } from '@xyflow/react';
-import {
-  getLayoutedElements,
-  type LayoutDirection,
-} from '../utils/layout-utils';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { MyNode } from '../types/schema';
+import {
+  type LayoutDirection,
+  getLayoutedElements,
+} from '../utils/layout-utils';
 
 const DEFAULT_LAYOUT: LayoutDirection = 'LR';
 
@@ -32,24 +32,17 @@ export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
   // nodesInitialized becomes true after React Flow has measured all visible nodes
   const nodesInitialized = useNodesInitialized({ includeHiddenNodes: false });
 
-  // Track whether a layout pass is pending
+  // Track whether a layout pass is pending (ref guards against double-run)
   const needsLayoutRef = useRef(true);
 
-  // Track the previous input signature to detect changes
-  const prevSignatureRef = useRef('');
+  // State counter so the layout effect re-triggers even on edge-only changes
+  // (nodesInitialized doesn't cycle when only edges change)
+  const [layoutVersion, setLayoutVersion] = useState(0);
 
-  // When input nodes/edges change, reset positions and flag for re-layout
+  // When input nodes/edges change, reset positions and flag for re-layout.
+  // No manual signature check needed — initialNodes/initialEdges are memoized
+  // in SchemaVisualizer so this effect only fires on real changes.
   useEffect(() => {
-    if (!initialNodes.length && !initialEdges.length) return;
-
-    const signature =
-      initialNodes.map((n) => n.id + (n.hidden ? ':h' : '')).join(',') +
-      '|' +
-      initialEdges.map((e) => e.id).join(',');
-
-    if (signature === prevSignatureRef.current) return;
-    prevSignatureRef.current = signature;
-
     setNodes(
       initialNodes.map((n) => ({
         ...n,
@@ -61,9 +54,11 @@ export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
       initialEdges.map((e) => ({ ...e, style: { ...e.style, opacity: 0 } })),
     );
     needsLayoutRef.current = true;
+    setLayoutVersion((v) => v + 1);
   }, [initialNodes, initialEdges, setNodes, setEdges]);
 
-  // Run ELK layout once React Flow has measured all visible nodes
+  // Run ELK layout once React Flow has measured all visible nodes.
+  // Depends on layoutVersion so it re-runs even when only edges changed.
   useEffect(() => {
     if (!nodesInitialized || !needsLayoutRef.current) return;
     needsLayoutRef.current = false;
@@ -86,7 +81,7 @@ export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
     );
     // intentionally omitting nodes/edges/selectedLayout from deps to avoid loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodesInitialized]);
+  }, [nodesInitialized, layoutVersion]);
 
   const onLayout = useCallback(
     (direction: LayoutDirection) => {

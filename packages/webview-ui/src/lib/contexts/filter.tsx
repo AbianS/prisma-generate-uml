@@ -1,9 +1,9 @@
 import {
+  type ReactNode,
   createContext,
   useCallback,
   useContext,
   useState,
-  type ReactNode,
 } from 'react';
 
 export interface FilterState {

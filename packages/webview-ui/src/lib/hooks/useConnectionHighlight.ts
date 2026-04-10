@@ -1,11 +1,11 @@
-import { useCallback } from 'react';
 import {
+  type Edge,
+  type Node,
   getConnectedEdges,
   useOnSelectionChange,
   useReactFlow,
-  type Edge,
-  type Node,
 } from '@xyflow/react';
+import { useCallback } from 'react';
 
 const DIM_OPACITY = 0.15;
 

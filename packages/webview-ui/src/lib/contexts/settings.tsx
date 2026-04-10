@@ -1,9 +1,9 @@
 import {
+  ReactNode,
   createContext,
+  useCallback,
   useContext,
   useState,
-  ReactNode,
-  useCallback,
 } from 'react';
 
 export interface DiagramSettings {

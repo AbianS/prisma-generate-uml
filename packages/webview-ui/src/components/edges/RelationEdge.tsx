@@ -1,9 +1,9 @@
 import {
   BaseEdge,
+  type Edge,
   EdgeLabelRenderer,
   EdgeProps,
   getSmoothStepPath,
-  type Edge,
 } from '@xyflow/react';
 import { type RelationType } from '../../lib/types/schema';
 

@@ -1,9 +1,8 @@
-import { getNodesBounds, getViewportForBounds } from '@xyflow/react';
+import { Node, getNodesBounds, getViewportForBounds } from '@xyflow/react';
 import { toPng } from 'html-to-image';
-import { MyNode } from '../types/schema';
 import { getVsCodeApi } from './vscode-api';
 
-export const screenshot = (getNodes: () => MyNode[]) => {
+export const screenshot = (getNodes: () => Node[]) => {
   const nodesBounds = getNodesBounds(getNodes());
 
   // 8k resolution
