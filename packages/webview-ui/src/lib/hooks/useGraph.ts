@@ -35,14 +35,25 @@ export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
   // Track whether a layout pass is pending (ref guards against double-run)
   const needsLayoutRef = useRef(true);
 
-  // State counter so the layout effect re-triggers even on edge-only changes
-  // (nodesInitialized doesn't cycle when only edges change)
+  // State counter used ONLY for edge-only changes: when nodes don't change,
+  // nodesInitialized never cycles (nothing to re-measure), so we need another
+  // way to wake up the layout effect.
   const [layoutVersion, setLayoutVersion] = useState(0);
 
+  // Track the previous node signature to detect whether nodes actually changed.
+  // Only ids + hidden flag matter here — if those change, nodesInitialized will
+  // cycle on its own and we must NOT also bump layoutVersion (which would run
+  // the layout before React Flow finishes measuring the newly visible nodes).
+  const prevNodeSigRef = useRef('');
+
   // When input nodes/edges change, reset positions and flag for re-layout.
-  // No manual signature check needed — initialNodes/initialEdges are memoized
-  // in SchemaVisualizer so this effect only fires on real changes.
   useEffect(() => {
+    const nodeSig = initialNodes
+      .map((n) => n.id + (n.hidden ? ':h' : ''))
+      .join(',');
+    const nodesChanged = nodeSig !== prevNodeSigRef.current;
+    prevNodeSigRef.current = nodeSig;
+
     setNodes(
       initialNodes.map((n) => ({
         ...n,
@@ -54,11 +65,21 @@ export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
       initialEdges.map((e) => ({ ...e, style: { ...e.style, opacity: 0 } })),
     );
     needsLayoutRef.current = true;
-    setLayoutVersion((v) => v + 1);
+
+    // For node changes (focus toggle, hide/show, search) nodesInitialized will
+    // cycle false→true once React Flow measures the newly visible nodes — that
+    // is enough to trigger the layout effect, and it guarantees measured sizes
+    // are ready. Bumping layoutVersion here would fire the layout too early
+    // (before measuring) and cause node overlaps.
+    //
+    // For edge-only changes nodesInitialized never cycles, so we need the bump.
+    if (!nodesChanged) {
+      setLayoutVersion((v) => v + 1);
+    }
   }, [initialNodes, initialEdges, setNodes, setEdges]);
 
   // Run ELK layout once React Flow has measured all visible nodes.
-  // Depends on layoutVersion so it re-runs even when only edges changed.
+  // layoutVersion handles the edge-only case where nodesInitialized stays true.
   useEffect(() => {
     if (!nodesInitialized || !needsLayoutRef.current) return;
     needsLayoutRef.current = false;
