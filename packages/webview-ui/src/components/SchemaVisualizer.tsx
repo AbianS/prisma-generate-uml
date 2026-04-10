@@ -273,7 +273,9 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
           />
 
           <Background
-            color={isDarkMode ? '#2a2a2a' : '#d0d0d0'}
+            color={isDarkMode ? '#232323' : '#e4e4e4'}
+            gap={32}
+            lineWidth={0.5}
             variant={bgVariant}
             style={{
               opacity: settings.showBackground ? 1 : 0,

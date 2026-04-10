@@ -34,7 +34,7 @@ export const DEFAULT_SETTINGS: DiagramSettings = {
     secondaryColor: '#6366f1',
     enumColor: '#10b981',
     titleColor: '#ffffff',
-    backgroundColor: '#1c1c1c',
+    backgroundColor: '',
   },
 };
 
