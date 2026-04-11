@@ -1,14 +1,15 @@
+import { ReactFlowProvider } from '@xyflow/react';
 import { useEffect, useState } from 'react';
 import { SchemaVisualizer } from './components/SchemaVisualizer';
-import { ThemeProvider } from './lib/contexts/theme';
+import { FilterProvider } from './lib/contexts/filter';
 import { SettingsProvider } from './lib/contexts/settings';
+import { ThemeProvider } from './lib/contexts/theme';
 import {
   ColorThemeKind,
   Enum,
   Model,
   ModelConnection,
 } from './lib/types/schema';
-import { ReactFlowProvider } from '@xyflow/react';
 import { getVsCodeApi } from './lib/utils/vscode-api';
 
 function App() {
@@ -48,19 +49,29 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <SettingsProvider>
-        <ReactFlowProvider>
-          {models.length > 0 && connections.length > 0 ? (
-            <SchemaVisualizer
-              models={models}
-              connections={connections}
-              enums={enums}
-            />
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'var(--vscode-foreground)' }}>
-              Loading schema...
-            </div>
-          )}
-        </ReactFlowProvider>
+        <FilterProvider>
+          <ReactFlowProvider>
+            {models.length > 0 ? (
+              <SchemaVisualizer
+                models={models}
+                connections={connections}
+                enums={enums}
+              />
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100vh',
+                  color: 'var(--vscode-foreground)',
+                }}
+              >
+                Loading schema…
+              </div>
+            )}
+          </ReactFlowProvider>
+        </FilterProvider>
       </SettingsProvider>
     </ThemeProvider>
   );

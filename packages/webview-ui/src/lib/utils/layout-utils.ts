@@ -1,46 +1,157 @@
-import dagre from '@dagrejs/dagre';
 import { Edge, Position } from '@xyflow/react';
-import { MyNode } from '../types/schema';
+import ELK, { type ElkNode } from 'elkjs/lib/elk.bundled.js';
+import { Model, MyNode } from '../types/schema';
 
-const dagreGraph = new dagre.graphlib.Graph();
-dagreGraph.setDefaultEdgeLabel(() => ({}));
+export type LayoutDirection = 'TB' | 'LR' | 'BT' | 'RL';
 
-const nodeWidth = 250;
-const nodeHeight = 400;
+const FALLBACK_NODE_WIDTH = 220;
+const FALLBACK_NODE_HEIGHT = 120;
 
-export const getLayoutedElements = (
+const ELK_DIRECTION: Record<LayoutDirection, string> = {
+  LR: 'RIGHT',
+  RL: 'LEFT',
+  TB: 'DOWN',
+  BT: 'UP',
+};
+
+// Per-direction ELK port sides and React Flow handle positions
+const PORT_SIDES: Record<LayoutDirection, { source: string; target: string }> =
+  {
+    LR: { source: 'EAST', target: 'WEST' },
+    RL: { source: 'WEST', target: 'EAST' },
+    TB: { source: 'SOUTH', target: 'NORTH' },
+    BT: { source: 'NORTH', target: 'SOUTH' },
+  };
+
+const HANDLE_POSITIONS: Record<
+  LayoutDirection,
+  { source: Position; target: Position }
+> = {
+  LR: { source: Position.Right, target: Position.Left },
+  RL: { source: Position.Left, target: Position.Right },
+  TB: { source: Position.Bottom, target: Position.Top },
+  BT: { source: Position.Top, target: Position.Bottom },
+};
+
+function isModelData(data: unknown): data is Model {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'fields' in data &&
+    Array.isArray((data as Model).fields)
+  );
+}
+
+function isEnumData(data: unknown): data is { name: string; values: string[] } {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'values' in data &&
+    Array.isArray((data as { values: unknown }).values)
+  );
+}
+
+export async function getLayoutedElements(
   nodes: MyNode[],
   edges: Edge[],
-  direction = 'TB',
-) => {
-  const isHorizontal = direction === 'LR' || direction === 'RL';
+  direction: LayoutDirection = 'LR',
+): Promise<{ nodes: MyNode[]; edges: Edge[] }> {
+  const elk = new ELK();
+  const portSides = PORT_SIDES[direction];
 
-  dagreGraph.setGraph({
-    rankdir: direction,
-  });
+  const visibleNodes = nodes.filter((n) => !n.hidden);
+  const visibleNodeIds = new Set(visibleNodes.map((n) => n.id));
+  const visibleEdges = edges.filter(
+    (e) =>
+      !e.hidden && visibleNodeIds.has(e.source) && visibleNodeIds.has(e.target),
+  );
 
-  nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
-  });
+  const elkChildren: ElkNode[] = visibleNodes.map((node) => {
+    const width = node.measured?.width ?? FALLBACK_NODE_WIDTH;
+    const height = node.measured?.height ?? FALLBACK_NODE_HEIGHT;
 
-  edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
-  });
+    const ports: ElkNode['ports'] = [];
 
-  dagre.layout(dagreGraph);
+    if (isModelData(node.data)) {
+      ports.push({
+        id: `${node.id}-target`,
+        layoutOptions: { 'port.side': portSides.target },
+      });
+      node.data.fields
+        .filter((f) => f.hasConnections)
+        .forEach((f) => {
+          ports.push({
+            id: `${node.id}-${f.name}-source`,
+            layoutOptions: { 'port.side': portSides.source },
+          });
+        });
+      // Enum relation ports
+      node.data.fields
+        .filter((f) => f.isEnum)
+        .forEach((f) => {
+          ports.push({
+            id: `${node.id}-${f.name}-enum-source`,
+            layoutOptions: { 'port.side': portSides.source },
+          });
+        });
+    } else if (isEnumData(node.data)) {
+      ports.push({
+        id: `${node.id}-target`,
+        layoutOptions: { 'port.side': portSides.target },
+      });
+    }
 
-  const newNodes = nodes.map((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
     return {
-      ...node,
-      targetPosition: isHorizontal ? Position.Left : Position.Top,
-      sourcePosition: isHorizontal ? Position.Right : Position.Bottom,
-      position: {
-        x: nodeWithPosition.x - nodeWidth / 2,
-        y: nodeWithPosition.y - nodeHeight / 2,
-      },
+      id: node.id,
+      width,
+      height,
+      layoutOptions: { 'org.eclipse.elk.portConstraints': 'FIXED_SIDE' },
+      ports,
     };
   });
 
-  return { nodes: newNodes, edges };
-};
+  const elkEdges = visibleEdges.map((edge) => ({
+    id: edge.id,
+    sources: [edge.sourceHandle ?? edge.source],
+    targets: [edge.targetHandle ?? edge.target],
+  }));
+
+  const graph: ElkNode = {
+    id: 'root',
+    layoutOptions: {
+      'elk.algorithm': 'layered',
+      'elk.direction': ELK_DIRECTION[direction],
+      'elk.spacing.nodeNode': '80',
+      'elk.layered.spacing.nodeNodeBetweenLayers': '180',
+      'elk.layered.spacing.edgeNodeBetweenLayers': '60',
+      'elk.spacing.edgeNode': '25',
+      'elk.spacing.edgeEdge': '15',
+      'elk.edgeRouting': 'ORTHOGONAL',
+      'elk.layered.crossingMinimization.strategy': 'LAYER_SWEEP',
+      'elk.layered.thoroughness': '10',
+    },
+    children: elkChildren,
+    edges: elkEdges,
+  };
+
+  const laid = await elk.layout(graph);
+
+  const nodePositions = new Map(
+    (laid.children ?? []).map((n) => [n.id, { x: n.x ?? 0, y: n.y ?? 0 }]),
+  );
+
+  const handlePositions = HANDLE_POSITIONS[direction];
+
+  const layoutedNodes = nodes.map((node) => {
+    const pos = nodePositions.get(node.id);
+    if (node.hidden || !pos) return node;
+    return {
+      ...node,
+      position: pos,
+      targetPosition: handlePositions.target,
+      sourcePosition: handlePositions.source,
+    };
+  });
+
+  return { nodes: layoutedNodes, edges };
+}

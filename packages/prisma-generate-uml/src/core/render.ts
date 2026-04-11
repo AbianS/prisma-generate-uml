@@ -6,6 +6,8 @@ export type Model = {
     name: string;
     type: string;
     hasConnections?: boolean;
+    isPrimary?: boolean;
+    isEnum?: boolean;
   }[];
   isChild?: boolean;
 };
@@ -15,10 +17,13 @@ export type Enum = {
   values: string[];
 };
 
+export type RelationType = 'ONE_TO_ONE' | 'ONE_TO_MANY' | 'MANY_TO_MANY';
+
 export type ModelConnection = {
   target: string;
   source: string;
   name: string;
+  relationType?: RelationType;
 };
 
 /**
@@ -55,6 +60,8 @@ export function generateModels(models: readonly DMMF.Model[]): Model[] {
       type: field.isList ? `${field.type}[]` : field.type,
       hasConnections:
         field.kind === 'object' || (field.relationFromFields?.length ?? 0) > 0,
+      isPrimary: field.isId === true,
+      isEnum: field.kind === 'enum',
     })),
     isChild: model.fields.some(
       (field) => (field.relationFromFields?.length ?? 0) > 0,
@@ -83,6 +90,26 @@ export function generateEnums(enums: readonly DMMF.DatamodelEnum[]): Enum[] {
  * @param {readonly DMMF.Model[]} models - The list of models from the DMMF document.
  * @returns {ModelConnection[]} An array of `ModelConnection` objects representing relationships between models.
  */
+function resolveRelationType(
+  sourceModel: DMMF.Model,
+  field: DMMF.Field,
+  models: readonly DMMF.Model[],
+): RelationType {
+  const targetModel = models.find((m) => m.name === field.type);
+  if (!targetModel) return 'ONE_TO_MANY';
+
+  const counterpart = targetModel.fields.find(
+    (f) =>
+      f.relationName === field.relationName &&
+      !(targetModel.name === sourceModel.name && f.name === field.name),
+  );
+  if (!counterpart) return 'ONE_TO_MANY';
+
+  if (field.isList && counterpart.isList) return 'MANY_TO_MANY';
+  if (!field.isList && !counterpart.isList) return 'ONE_TO_ONE';
+  return 'ONE_TO_MANY';
+}
+
 export function generateModelConnections(
   models: readonly DMMF.Model[],
 ): ModelConnection[] {
@@ -103,6 +130,7 @@ export function generateModelConnections(
           source: `${model.name}-${field.name}-source`,
           target: `${targetModelName}-target`,
           name: connectionName,
+          relationType: resolveRelationType(model, field, models),
         });
       }
     });

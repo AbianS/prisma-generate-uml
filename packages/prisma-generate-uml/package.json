@@ -2,7 +2,7 @@
   "name": "prisma-generate-uml",
   "displayName": "Prisma Generate UML",
   "description": "Generate UML Diagram from prisma schema",
-  "version": "3.6.1",
+  "version": "3.7.0",
   "icon": "media/readme/logo.png",
   "repository": "https://github.com/AbianS/prisma-generate-uml",
   "publisher": "AbianS",
@@ -55,6 +55,7 @@
     "publish": "vsce publish --no-dependencies"
   },
   "devDependencies": {
+    "@prisma/dmmf": "7.6.0",
     "@prisma/prisma-schema-wasm": "7.6.0-1.75cbdc1eb7150937890ad5465d861175c6624711",
     "@types/mocha": "10.0.10",
     "@types/node": "24.12.2",

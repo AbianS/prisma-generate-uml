@@ -1,7 +1,7 @@
 import { Handle, NodeProps, Position } from '@xyflow/react';
 import { JSX, memo } from 'react';
-import { useTheme } from '../lib/contexts/theme';
 import { useSettings } from '../lib/contexts/settings';
+import { useTheme } from '../lib/contexts/theme';
 import { ModelNodeTye } from '../lib/types/schema';
 
 import {
@@ -11,113 +11,190 @@ import {
   File,
   FileText,
   Hash,
+  Key,
   Link2,
   List,
   Type,
 } from 'lucide-react';
 
 const typeIcons: Record<string, JSX.Element> = {
-  string: <Type size={16} />,
-  int: <Hash size={16} />,
-  float: <Calculator size={16} />,
-  double: <Hash size={16} />,
-  date: <Calendar size={16} />,
-  datetime: <Calendar size={16} />,
-  boolean: <CheckSquare size={16} />,
-  text: <FileText size={16} />,
-  file: <File size={16} />,
-  enum: <List size={16} />,
+  string: <Type size={13} />,
+  int: <Hash size={13} />,
+  float: <Calculator size={13} />,
+  double: <Hash size={13} />,
+  decimal: <Hash size={13} />,
+  bigint: <Hash size={13} />,
+  date: <Calendar size={13} />,
+  datetime: <Calendar size={13} />,
+  boolean: <CheckSquare size={13} />,
+  text: <FileText size={13} />,
+  file: <File size={13} />,
+  enum: <List size={13} />,
 };
 
 const getIconForType = (type: string) => {
-  return typeIcons[type.toLowerCase()] || <Link2 size={16} />;
+  return typeIcons[type.toLowerCase()] || <Link2 size={13} />;
 };
 
-export const ModelNode = memo(({ data }: NodeProps<ModelNodeTye>) => {
-  const { isDarkMode } = useTheme();
-  const { settings } = useSettings();
+export const ModelNode = memo(
+  ({
+    data,
+    selected,
+    targetPosition,
+    sourcePosition,
+  }: NodeProps<ModelNodeTye>) => {
+    const { isDarkMode } = useTheme();
+    const { settings } = useSettings();
 
-  return (
-    <div
-      className={`
-        rounded-xl 
-        border 
-        ${isDarkMode ? 'border-gray-700 bg-[#1c1c1c]' : 'border-gray-300 bg-white'}
-        shadow-md 
-        overflow-hidden 
-        transition-shadow 
-        duration-300 
-        hover:shadow-lg
-        min-w-[250px]
-      `}
-    >
-      {data.isChild && (
+    const connectionCount = data.fields.filter((f) => f.hasConnections).length;
+
+    return (
+      <div
+        className={[
+          'rounded-xl border overflow-hidden shadow-md transition-all duration-200',
+          'min-w-[200px] max-w-[320px]',
+          isDarkMode
+            ? 'border-gray-700 bg-[#1c1c1c]'
+            : 'border-gray-200 bg-white',
+          selected
+            ? 'shadow-lg ring-2 ring-indigo-500 ring-offset-1'
+            : 'hover:shadow-lg',
+        ].join(' ')}
+      >
+        {/* Shared target handle — position driven by layout direction */}
         <Handle
           id={`${data.name}-target`}
-          position={Position.Top}
+          position={targetPosition ?? Position.Left}
           type="target"
+          style={{ top: '50%', transform: 'translateY(-50%)' }}
         />
-      )}
 
-      <div
-        className="p-2 text-center"
-        style={{
-          background: `linear-gradient(to right, ${settings.theme.primaryColor}, ${settings.theme.secondaryColor})`,
-        }}
-      >
-        <p
-          className="font-semibold tracking-wide"
-          style={{ color: settings.theme.titleColor }}
+        {/* Header */}
+        <div
+          className="px-3 py-2 flex items-center justify-between gap-2"
+          style={{
+            background: `linear-gradient(135deg, ${settings.theme.primaryColor}, ${settings.theme.secondaryColor})`,
+          }}
         >
-          <pre>{data.name}</pre>
-        </p>
-      </div>
-
-      <div className="flex flex-col divide-y divide-gray-200 dark:divide-gray-700">
-        {data.fields.map(({ type, name, hasConnections }, index) => (
-          <div
-            key={name}
-            className={`
-              flex 
-              items-center 
-              px-3 py-2 
-              text-sm
-              ${
-                isDarkMode
-                  ? index % 2 === 0
-                    ? 'bg-[#2a2a2a]'
-                    : 'bg-[#232323]'
-                  : index % 2 === 0
-                    ? 'bg-gray-50'
-                    : 'bg-white'
-              }
-              transition-colors 
-              duration-200
-            `}
+          <p
+            className="font-semibold text-sm tracking-wide truncate"
+            style={{ color: settings.theme.titleColor }}
+            title={data.name}
           >
-            <div className="flex items-center gap-2">
-              {settings.showFieldIcons && getIconForType(type)}
-              <span className="font-medium whitespace-pre-wrap">{name}</span>
-            </div>
-            {settings.showFieldTypes && (
-              <div className="ml-auto text-gray-600 dark:text-gray-300">
-                <pre className="whitespace-pre-wrap">{type}</pre>
-              </div>
-            )}
+            {data.name}
+          </p>
+          {connectionCount > 0 && (
+            <span
+              className="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+              style={{
+                background: 'rgba(255,255,255,0.25)',
+                color: settings.theme.titleColor,
+              }}
+            >
+              {connectionCount}
+            </span>
+          )}
+        </div>
 
-            {hasConnections && (
-              <Handle
-                position={Position.Right}
-                id={`${data.name}-${name}-source`}
-                type="source"
-                style={{
-                  top: 27 + 16 + 27 * index,
-                }}
-              />
-            )}
-          </div>
-        ))}
+        {/* Fields */}
+        <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800">
+          {data.fields.map(
+            ({ type, name, hasConnections, isPrimary, isEnum }, index) => (
+              <div
+                key={name}
+                className={[
+                  'relative flex items-center gap-2 px-3 py-1.5 text-xs',
+                  isDarkMode
+                    ? index % 2 === 0
+                      ? 'bg-[#252525]'
+                      : 'bg-[#1e1e1e]'
+                    : index % 2 === 0
+                      ? 'bg-gray-50'
+                      : 'bg-white',
+                ].join(' ')}
+              >
+                {/* Field icon */}
+                {settings.showFieldIcons && (
+                  <span
+                    className={
+                      isPrimary
+                        ? 'text-amber-400 flex-shrink-0'
+                        : isDarkMode
+                          ? 'text-gray-500 flex-shrink-0'
+                          : 'text-gray-400 flex-shrink-0'
+                    }
+                  >
+                    {isPrimary ? <Key size={13} /> : getIconForType(type)}
+                  </span>
+                )}
+
+                {/* Field name */}
+                <span
+                  className={[
+                    'font-medium truncate',
+                    isPrimary
+                      ? 'text-amber-400'
+                      : isDarkMode
+                        ? 'text-gray-200'
+                        : 'text-gray-700',
+                  ].join(' ')}
+                  title={name}
+                >
+                  {name}
+                </span>
+
+                {/* Field type */}
+                {settings.showFieldTypes && (
+                  <span
+                    className={[
+                      'ml-auto font-mono text-[10px] flex-shrink-0',
+                      isDarkMode ? 'text-gray-500' : 'text-gray-400',
+                    ].join(' ')}
+                    title={type}
+                  >
+                    {type}
+                  </span>
+                )}
+
+                {/* Source handle for model relations */}
+                {hasConnections && (
+                  <Handle
+                    position={sourcePosition ?? Position.Right}
+                    id={`${data.name}-${name}-source`}
+                    type="source"
+                    style={{
+                      position: 'absolute',
+                      right: -6,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      width: 10,
+                      height: 10,
+                    }}
+                  />
+                )}
+
+                {/* Source handle for enum fields */}
+                {isEnum && (
+                  <Handle
+                    position={sourcePosition ?? Position.Right}
+                    id={`${data.name}-${name}-enum-source`}
+                    type="source"
+                    style={{
+                      position: 'absolute',
+                      right: -6,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      width: 10,
+                      height: 10,
+                      borderColor: '#06d6a0',
+                    }}
+                  />
+                )}
+              </div>
+            ),
+          )}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);

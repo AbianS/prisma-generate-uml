@@ -74,7 +74,7 @@ export class PrismaUMLPanel {
       const panel = vscode.window.createWebviewPanel(
         PrismaUMLPanel.viewType,
         'Prisma Schema UML',
-        vscode.ViewColumn.Two,
+        vscode.ViewColumn.One,
         {
           enableScripts: true,
           retainContextWhenHidden: true,
@@ -122,7 +122,7 @@ export class PrismaUMLPanel {
     this._models = models;
     this._connections = connections;
     this._enums = enums;
-    
+
     this._panel.webview.postMessage({
       command: 'setData',
       models,
