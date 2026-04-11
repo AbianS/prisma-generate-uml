@@ -91,6 +91,7 @@ export function generateEnums(enums: readonly DMMF.DatamodelEnum[]): Enum[] {
  * @returns {ModelConnection[]} An array of `ModelConnection` objects representing relationships between models.
  */
 function resolveRelationType(
+  sourceModel: DMMF.Model,
   field: DMMF.Field,
   models: readonly DMMF.Model[],
 ): RelationType {
@@ -98,7 +99,9 @@ function resolveRelationType(
   if (!targetModel) return 'ONE_TO_MANY';
 
   const counterpart = targetModel.fields.find(
-    (f) => f.relationName === field.relationName,
+    (f) =>
+      f.relationName === field.relationName &&
+      !(targetModel.name === sourceModel.name && f.name === field.name),
   );
   if (!counterpart) return 'ONE_TO_MANY';
 
@@ -127,7 +130,7 @@ export function generateModelConnections(
           source: `${model.name}-${field.name}-source`,
           target: `${targetModelName}-target`,
           name: connectionName,
-          relationType: resolveRelationType(field, models),
+          relationType: resolveRelationType(model, field, models),
         });
       }
     });

@@ -35,6 +35,9 @@ export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
   // Track whether a layout pass is pending (ref guards against double-run)
   const needsLayoutRef = useRef(true);
 
+  // Monotonically increasing ID to discard stale async layout results.
+  const layoutRequestIdRef = useRef(0);
+
   // State counter used ONLY for edge-only changes: when nodes don't change,
   // nodesInitialized never cycles (nothing to re-measure), so we need another
   // way to wake up the layout effect.
@@ -86,8 +89,10 @@ export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
 
     const measuredNodes = getNodes() as MyNode[];
 
+    const requestId = ++layoutRequestIdRef.current;
     getLayoutedElements(measuredNodes, edges, selectedLayout).then(
       ({ nodes: laid, edges: laidEdges }) => {
+        if (requestId !== layoutRequestIdRef.current) return;
         setNodes(
           laid.map((n) => ({ ...n, style: { ...n.style, opacity: 1 } })),
         );
@@ -107,8 +112,10 @@ export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
   const onLayout = useCallback(
     (direction: LayoutDirection) => {
       setSelectedLayout(direction);
+      const requestId = ++layoutRequestIdRef.current;
       getLayoutedElements(nodes, edges, direction).then(
         ({ nodes: laid, edges: laidEdges }) => {
+          if (requestId !== layoutRequestIdRef.current) return;
           setNodes(laid);
           setEdges(
             laidEdges.map((e) => ({ ...e, style: { ...e.style, opacity: 1 } })),

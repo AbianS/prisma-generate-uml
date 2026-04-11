@@ -15,7 +15,7 @@ import {
   Search,
   X,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { useFilter } from '../lib/contexts/filter';
 import { useSettings } from '../lib/contexts/settings';
 import { useTheme } from '../lib/contexts/theme';
@@ -33,7 +33,7 @@ interface SidebarProps {
 const LAYOUT_OPTIONS: {
   dir: LayoutDirection;
   label: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 }[] = [
   { dir: 'TB', label: 'Top → Bottom', icon: <ArrowDown size={14} /> },
   { dir: 'LR', label: 'Left → Right', icon: <ArrowRight size={14} /> },
@@ -472,7 +472,7 @@ interface SectionAccordionProps {
   open: boolean;
   onToggle: () => void;
   dark: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 function SectionAccordion({
