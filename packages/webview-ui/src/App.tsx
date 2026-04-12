@@ -33,7 +33,7 @@ function App() {
           setTheme(message.theme);
           break;
         default: {
-          const _exhaustive: never = message;
+          void (message as never);
           break;
         }
       }
