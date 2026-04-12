@@ -10,6 +10,7 @@ import {
   Model,
   ModelConnection,
 } from './lib/types/schema';
+import type { ExtensionMessage } from './lib/types/messages';
 import { getVsCodeApi } from './lib/utils/vscode-api';
 
 function App() {
@@ -20,16 +21,21 @@ function App() {
 
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
-      const message = event.data;
+      const message = event.data as ExtensionMessage;
 
-      if (message.command === 'setData') {
-        setModels(message.models);
-        setConnections(message.connections);
-        setEnums(message.enums);
-      }
-
-      if (message.command === 'setTheme') {
-        setTheme(message.theme);
+      switch (message.command) {
+        case 'setData':
+          setModels(message.models);
+          setConnections(message.connections);
+          setEnums(message.enums);
+          break;
+        case 'setTheme':
+          setTheme(message.theme);
+          break;
+        default: {
+          void (message as never);
+          break;
+        }
       }
     }
 
