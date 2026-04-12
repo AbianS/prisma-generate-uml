@@ -9,7 +9,7 @@ import {
   ReactFlow,
   useReactFlow,
 } from '@xyflow/react';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useFilter } from '../lib/contexts/filter';
 import { useSettings } from '../lib/contexts/settings';
 import { useTheme } from '../lib/contexts/theme';
@@ -47,6 +47,12 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
   const { settings } = useSettings();
   const filter = useFilter();
   const debouncedSearchQuery = useDebouncedValue(filter.searchQuery, 200);
+
+  // BFS result cache — keyed by "${focusedNodeId}:${focusDepth}".
+  // Invalidated (cleared) whenever allEdges reference changes (schema reload).
+  // useRef avoids triggering re-renders on cache writes.
+  const bfsCacheRef = useRef<Map<string, Set<string>>>(new Map());
+  const prevAllEdgesRef = useRef<Edge[]>([]);
 
   // ── Build raw nodes ────────────────────────────────────────────────────
   const enumNames = useMemo(() => new Set(enums.map((e) => e.name)), [enums]);
@@ -151,14 +157,28 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
     const allNodes = [...allModelNodes, ...allEnumNodes];
     const query = debouncedSearchQuery.trim().toLowerCase();
 
-    // Compute focus-visible set via BFS
+    // Invalidate BFS cache when allEdges reference changes (schema reload).
+    // allEdges is useMemo-stabilized so reference equality is reliable here.
+    if (prevAllEdgesRef.current !== allEdges) {
+      bfsCacheRef.current.clear();
+      prevAllEdgesRef.current = allEdges;
+    }
+
+    // Compute focus-visible set via BFS, with cache.
     let focusIds: Set<string> | null = null;
     if (filter.focusedNodeId) {
-      focusIds = bfsNeighbors(
-        filter.focusedNodeId,
-        allEdges,
-        filter.focusDepth,
-      );
+      const cacheKey = `${filter.focusedNodeId}:${filter.focusDepth}`;
+      const cached = bfsCacheRef.current.get(cacheKey);
+      if (cached) {
+        focusIds = cached;
+      } else {
+        focusIds = bfsNeighbors(
+          filter.focusedNodeId,
+          allEdges,
+          filter.focusDepth,
+        );
+        bfsCacheRef.current.set(cacheKey, focusIds);
+      }
     }
 
     const fNodes = allNodes.map((node) => {
