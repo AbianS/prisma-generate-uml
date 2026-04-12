@@ -14,6 +14,7 @@ import { useFilter } from '../lib/contexts/filter';
 import { useSettings } from '../lib/contexts/settings';
 import { useTheme } from '../lib/contexts/theme';
 import { useConnectionHighlight } from '../lib/hooks/useConnectionHighlight';
+import { useDebouncedValue } from '../lib/hooks/use-debounced-value';
 import { useGraph } from '../lib/hooks/useGraph';
 import {
   Enum,
@@ -45,6 +46,7 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
   const { getNodes } = useReactFlow();
   const { settings } = useSettings();
   const filter = useFilter();
+  const debouncedSearchQuery = useDebouncedValue(filter.searchQuery, 200);
 
   // ── Build raw nodes ────────────────────────────────────────────────────
   const enumNames = useMemo(() => new Set(enums.map((e) => e.name)), [enums]);
@@ -147,7 +149,7 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
   // ── Apply filter (focus + search + manual hide) ────────────────────────
   const { filteredNodes, filteredEdges } = useMemo(() => {
     const allNodes = [...allModelNodes, ...allEnumNodes];
-    const query = filter.searchQuery.trim().toLowerCase();
+    const query = debouncedSearchQuery.trim().toLowerCase();
 
     // Compute focus-visible set via BFS
     let focusIds: Set<string> | null = null;
@@ -182,7 +184,7 @@ export const SchemaVisualizer = ({ connections, models, enums }: Props) => {
     allEdges,
     filter.focusedNodeId,
     filter.focusDepth,
-    filter.searchQuery,
+    debouncedSearchQuery,
     filter.hiddenNodeIds,
   ]);
 
