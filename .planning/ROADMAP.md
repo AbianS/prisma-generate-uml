@@ -22,7 +22,10 @@
   3. `FilterContext` and `SettingsContext` value objects do not change reference on unrelated state updates (verifiable via React DevTools profiler — no consumer re-renders on unrelated actions)
   4. A `messages.ts` file exists with discriminated union types for the extension↔webview bridge; it compiles and exports without error (wiring to call sites deferred to Phase 2)
   5. `useGraph.ts` contains an inline comment explaining the `layoutRequestIdRef` async deduplication invariant; `screenshot.ts` (formerly `screnshot.ts`) is the canonical filename
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 01-01-PLAN.md — Fix ModelNodeTye/EnumNodeTye typo + create messages.ts discriminated unions (TYPE-01, TYPE-02, CODE-02)
+- [ ] 01-02-PLAN.md — Memoize RelationEdge + FilterContext/SettingsContext values + document useGraph async dedup (PERF-05, PERF-06, PERF-07, PERF-08, CODE-01)
+- [ ] 01-03-PLAN.md — Rename screnshot.ts to screenshot.ts + update SchemaVisualizer import (SCRN-04)
 **UI hint**: no
 
 ### Phase 2: Performance Core
