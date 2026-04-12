@@ -38,9 +38,9 @@
   3. TypeScript reports a type error at compile time if a new message command is added to one side of the postMessage bridge but not the other
   4. `App.tsx` message handler switch is exhaustive over the `ExtensionMessage` discriminant — adding a new variant without handling it produces a TypeScript error
 **Plans**: 3 plans
-- [ ] 02-01-PLAN.md — ELK singleton promotion + useDebouncedValue hook + debounce wiring in SchemaVisualizer (PERF-01, PERF-02)
-- [ ] 02-02-PLAN.md — BFS adjacency Map replacement + useRef BFS result cache in SchemaVisualizer (PERF-03, PERF-04)
-- [ ] 02-03-PLAN.md — Exhaustive switch in App.tsx + narrowed postMessage in vscode-api.ts (TYPE-03, TYPE-04)
+- [x] 02-01-PLAN.md — ELK singleton promotion + useDebouncedValue hook + debounce wiring in SchemaVisualizer (PERF-01, PERF-02)
+- [x] 02-02-PLAN.md — BFS adjacency Map replacement + useRef BFS result cache in SchemaVisualizer (PERF-03, PERF-04)
+- [x] 02-03-PLAN.md — Exhaustive switch in App.tsx + narrowed postMessage in vscode-api.ts (TYPE-03, TYPE-04)
 **UI hint**: no
 
 ### Phase 3: Screenshot Reliability
