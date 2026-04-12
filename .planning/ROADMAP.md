@@ -37,7 +37,10 @@
   2. Switching focus to a different model node in a 50-model schema takes visibly less time on the second visit to the same node at the same depth compared to the first (BFS cache hit — O(1) vs O(depth×edges))
   3. TypeScript reports a type error at compile time if a new message command is added to one side of the postMessage bridge but not the other
   4. `App.tsx` message handler switch is exhaustive over the `ExtensionMessage` discriminant — adding a new variant without handling it produces a TypeScript error
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 02-01-PLAN.md — ELK singleton promotion + useDebouncedValue hook + debounce wiring in SchemaVisualizer (PERF-01, PERF-02)
+- [ ] 02-02-PLAN.md — BFS adjacency Map replacement + useRef BFS result cache in SchemaVisualizer (PERF-03, PERF-04)
+- [ ] 02-03-PLAN.md — Exhaustive switch in App.tsx + narrowed postMessage in vscode-api.ts (TYPE-03, TYPE-04)
 **UI hint**: no
 
 ### Phase 3: Screenshot Reliability
@@ -56,6 +59,6 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/0 | Not started | - |
-| 2. Performance Core | 0/0 | Not started | - |
+| 1. Foundation | 0/3 | Not started | - |
+| 2. Performance Core | 0/3 | Not started | - |
 | 3. Screenshot Reliability | 0/0 | Not started | - |
