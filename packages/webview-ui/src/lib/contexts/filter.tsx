@@ -3,6 +3,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useMemo,
   useState,
 } from 'react';
 
@@ -67,18 +68,29 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const contextValue = useMemo(
+    () => ({
+      ...state,
+      focusNode,
+      clearFocus,
+      toggleHideNode,
+      setSearchQuery,
+      setFocusDepth,
+      resetAll,
+    }),
+    [
+      state,
+      focusNode,
+      clearFocus,
+      toggleHideNode,
+      setSearchQuery,
+      setFocusDepth,
+      resetAll,
+    ],
+  );
+
   return (
-    <FilterContext.Provider
-      value={{
-        ...state,
-        focusNode,
-        clearFocus,
-        toggleHideNode,
-        setSearchQuery,
-        setFocusDepth,
-        resetAll,
-      }}
-    >
+    <FilterContext.Provider value={contextValue}>
       {children}
     </FilterContext.Provider>
   );
