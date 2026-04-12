@@ -33,8 +33,8 @@ export enum ColorThemeKind {
   HighContrastLight = 4,
 }
 
-export type EnumNodeTye = Node<Enum>;
-export type ModelNodeTye = Node<Model>;
+export type EnumNodeType = Node<Enum>;
+export type ModelNodeType = Node<Model>;
 
 type NodeData = Model | Enum;
 export type MyNode = Node<NodeData>;

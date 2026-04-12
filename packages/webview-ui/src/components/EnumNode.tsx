@@ -2,10 +2,10 @@ import { Handle, NodeProps, Position } from '@xyflow/react';
 import { memo } from 'react';
 import { useSettings } from '../lib/contexts/settings';
 import { useTheme } from '../lib/contexts/theme';
-import { EnumNodeTye } from '../lib/types/schema';
+import { EnumNodeType } from '../lib/types/schema';
 
 export const EnumNode = memo(
-  ({ data, selected, targetPosition }: NodeProps<EnumNodeTye>) => {
+  ({ data, selected, targetPosition }: NodeProps<EnumNodeType>) => {
     const { isDarkMode } = useTheme();
     const { settings } = useSettings();
 
