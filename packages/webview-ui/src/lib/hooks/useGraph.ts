@@ -35,7 +35,22 @@ export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
   // Track whether a layout pass is pending (ref guards against double-run)
   const needsLayoutRef = useRef(true);
 
-  // Monotonically increasing ID to discard stale async layout results.
+  /**
+   * Monotonic request counter used to deduplicate concurrent ELK layout runs.
+   *
+   * Invariant: each time a layout is kicked off we pre-increment this ref and
+   * capture the new value as `requestId`. When the async layout promise resolves
+   * we commit its result to React state ONLY IF `requestId === layoutRequestIdRef.current`.
+   * Any earlier in-flight layout whose captured id no longer matches is silently
+   * discarded — its work is stale and its nodes/edges would overwrite the newest
+   * layout if we let it through.
+   *
+   * This is why the companion effect below carries an intentional
+   * `eslint-disable react-hooks/exhaustive-deps`: the effect closes over the ref
+   * object (stable across renders) rather than its `.current` value, and adding
+   * `nodes`/`edges`/`selectedLayout` to its deps would create a render loop
+   * because the effect itself is what writes nodes and edges.
+   */
   const layoutRequestIdRef = useRef(0);
 
   // State counter used ONLY for edge-only changes: when nodes don't change,
@@ -105,7 +120,9 @@ export const useGraph = (initialNodes: MyNode[], initialEdges: Edge[]) => {
         );
       },
     );
-    // intentionally omitting nodes/edges/selectedLayout from deps to avoid loops
+    // See `layoutRequestIdRef` comment above for why deps are intentionally
+    // incomplete here — the effect captures the ref object, not its current
+    // value, and depending on `nodes`/`edges`/`selectedLayout` would loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodesInitialized, layoutVersion]);
 

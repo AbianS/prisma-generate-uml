@@ -2,7 +2,7 @@ import { Handle, NodeProps, Position } from '@xyflow/react';
 import { JSX, memo } from 'react';
 import { useSettings } from '../lib/contexts/settings';
 import { useTheme } from '../lib/contexts/theme';
-import { ModelNodeTye } from '../lib/types/schema';
+import { ModelNodeType } from '../lib/types/schema';
 
 import {
   Calculator,
@@ -42,7 +42,7 @@ export const ModelNode = memo(
     selected,
     targetPosition,
     sourcePosition,
-  }: NodeProps<ModelNodeTye>) => {
+  }: NodeProps<ModelNodeType>) => {
     const { isDarkMode } = useTheme();
     const { settings } = useSettings();
 

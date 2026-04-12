@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "formatter": {
-    "ignore": ["node_modules", "dist", "logs", ".turbo", "build"],
+    "ignore": ["node_modules", "dist", "logs", ".turbo", "build", ".claude"],
     "enabled": true,
     "formatWithErrors": false,
     "indentStyle": "space",
@@ -12,7 +12,7 @@
   },
   "organizeImports": {
     "enabled": true,
-    "ignore": ["node_modules", "dist", "logs", ".turbo", "build"]
+    "ignore": ["node_modules", "dist", "logs", ".turbo", "build", ".claude"]
   },
   "linter": {
     "enabled": true,
@@ -64,7 +64,7 @@
         "noPrototypeBuiltins": "off"
       }
     },
-    "ignore": ["node_modules", "dist", "logs", ".turbo", "build"]
+    "ignore": ["node_modules", "dist", "logs", ".turbo", "build", ".claude"]
   },
   "javascript": {
     "parser": {

@@ -24,7 +24,7 @@ import {
 } from '../lib/types/schema';
 import { maskColor, nodeColor, nodeStrokeColor } from '../lib/utils/colots';
 import { bfsNeighbors } from '../lib/utils/graph-utils';
-import { screenshot } from '../lib/utils/screnshot';
+import { screenshot } from '../lib/utils/screenshot';
 import { EnumNode } from './EnumNode';
 import { ModelNode } from './ModelNode';
 import { Sidebar } from './Sidebar';

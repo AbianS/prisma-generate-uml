@@ -3,6 +3,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useMemo,
   useState,
 } from 'react';
 
@@ -88,15 +89,13 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
     setSettings(DEFAULT_SETTINGS);
   }, []);
 
+  const contextValue = useMemo(
+    () => ({ settings, updateSetting, updateTheme, resetSettings }),
+    [settings, updateSetting, updateTheme, resetSettings],
+  );
+
   return (
-    <SettingsContext.Provider
-      value={{
-        settings,
-        updateSetting,
-        updateTheme,
-        resetSettings,
-      }}
-    >
+    <SettingsContext.Provider value={contextValue}>
       {children}
     </SettingsContext.Provider>
   );

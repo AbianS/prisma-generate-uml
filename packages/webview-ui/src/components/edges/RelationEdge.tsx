@@ -5,6 +5,7 @@ import {
   EdgeProps,
   getSmoothStepPath,
 } from '@xyflow/react';
+import { memo } from 'react';
 import { type RelationType } from '../../lib/types/schema';
 
 const RELATION_COLORS: Record<RelationType, string> = {
@@ -21,7 +22,7 @@ type RelationEdgeData = Edge<{
   bidirectional?: boolean;
 }>;
 
-export function RelationEdge({
+export const RelationEdge = memo(function RelationEdge({
   id,
   sourceX,
   sourceY,
@@ -113,4 +114,4 @@ export function RelationEdge({
       )}
     </>
   );
-}
+});
