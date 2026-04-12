@@ -29,11 +29,19 @@ Instant, interactive Prisma schema visualization without leaving VS Code — the
 
 - [ ] Debounced layout recalculation on filter changes (200ms) to eliminate lag on 50+ model schemas
 - [ ] Configurable screenshot resolution (low/medium/high presets) instead of hardcoded 8K
-- [ ] Strict message type unions for extension↔webview communication (replace `any` types)
-- [ ] Fix type name typos: `ModelNodeTye` → `ModelNodeType`, `EnumNodeTye` → `EnumNodeType`
+- [ ] Strict message type unions for extension↔webview communication — messages.ts scaffold done (Phase 1); wiring in Phase 2
 - [ ] BFS neighbor cache to avoid O(depth × edges) re-traversal on every focus change
 - [ ] Screenshot progress indicator and memory warning for large schemas (100+ models)
-- [ ] Document (or refactor) the `layoutRequestIdRef` async deduplication pattern
+
+### Validated in Phase 1: Foundation (2026-04-12)
+
+- ✓ Fix type name typos: `ModelNodeTye` → `ModelNodeType`, `EnumNodeTye` → `EnumNodeType` (TYPE-01)
+- ✓ `messages.ts` discriminated-union scaffold for extension↔webview postMessage bridge (TYPE-02)
+- ✓ `ModelNode`, `EnumNode`, `RelationEdge` all wrapped in `React.memo` — unnecessary re-renders eliminated (PERF-05, PERF-06, PERF-07)
+- ✓ `FilterContext` and `SettingsContext` value objects wrapped in `useMemo` — context re-renders reduced (PERF-08)
+- ✓ `layoutRequestIdRef` async deduplication invariant documented in `useGraph.ts` (CODE-01)
+- ✓ `messages.ts` includes CODE-02 comment on runtime cast limitation and zod upgrade path (CODE-02)
+- ✓ `screnshot.ts` renamed to `screenshot.ts` — import corrected (SCRN-04)
 
 ### Out of Scope
 
@@ -50,7 +58,8 @@ Instant, interactive Prisma schema visualization without leaving VS Code — the
 - State: 3 React contexts (filter, settings, theme) — no external state manager
 - v3.7.0 just shipped graph redesign (PR #47); codebase is stable, no major outstanding bugs
 - Known performance issues: layout re-runs on every filter keystroke; BFS walks all edges per hop; 8K screenshot has no fallback for large schemas
-- Known tech debt: `any` types in postMessage bridge; typos in type names; `exhaustive-deps` ESLint bypass in `useGraph.ts`
+- Phase 1 complete: type typos fixed, React.memo on all nodes/edges, useMemo on contexts, messages.ts scaffold, screenshot filename corrected
+- Known tech debt: `any` types in postMessage bridge (wiring in Phase 2); `exhaustive-deps` bypass in `useGraph.ts` (documented, Phase 2 addresses)
 
 ## Constraints
 
@@ -70,7 +79,7 @@ Instant, interactive Prisma schema visualization without leaving VS Code — the
 | Removed leva/SettingsPanel | Dead code after redesign; simplified bundle | ✓ Good |
 
 ---
-*Last updated: 2026-04-12 after initialization*
+*Last updated: 2026-04-12 — Phase 1: Foundation complete*
 
 ## Evolution
 
