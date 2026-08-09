@@ -33,6 +33,10 @@ const HANDLE_POSITIONS: Record<
   BT: { source: Position.Top, target: Position.Bottom },
 };
 
+// ELK singleton — safe: elk.bundled.js FakeWorker serializes all layout
+// calls via setTimeout(fn, 0) on the JS event loop; no concurrent access.
+const elk = new ELK();
+
 function isModelData(data: unknown): data is Model {
   return (
     typeof data === 'object' &&
@@ -56,7 +60,6 @@ export async function getLayoutedElements(
   edges: Edge[],
   direction: LayoutDirection = 'LR',
 ): Promise<{ nodes: MyNode[]; edges: Edge[] }> {
-  const elk = new ELK();
   const portSides = PORT_SIDES[direction];
 
   const visibleNodes = nodes.filter((n) => !n.hidden);

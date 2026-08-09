@@ -1,5 +1,7 @@
+import type { WebviewMessage } from '../types/messages';
+
 interface VsCodeApi {
-  postMessage(message: any): void;
+  postMessage(message: WebviewMessage): void;
   setState(state: any): void;
   getState(): any;
 }
