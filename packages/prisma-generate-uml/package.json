@@ -52,8 +52,8 @@
     "esbuild:watch": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --watch",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "pnpm compile",
-    "test": "vscode-test",
+    "pretest": "tsc -p tsconfig.test.json",
+    "test": "node --test \"out/**/*.test.js\"",
     "clean": "rm -rf dist webview-ui node_modules/.cache",
     "package": "vsce package --no-dependencies",
     "publish": "vsce publish --no-dependencies"
@@ -72,6 +72,7 @@
     "typescript": "7.0.2"
   },
   "dependencies": {
-    "@prisma/internals": "7.10.0"
+    "@prisma/internals": "7.10.0",
+    "@prisma/schema-files-loader": "7.10.0"
   }
 }

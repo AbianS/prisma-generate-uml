@@ -1,6 +1,7 @@
 import { getDMMF } from '@prisma/internals';
 import * as vscode from 'vscode';
 import { transformDmmfToModelsAndConnections } from './core/render';
+import { createFilesResolver, loadSchemaFiles } from './core/schema-loader';
 import { PrismaUMLPanel } from './panels/prisma-uml-panel';
 
 let outputChannel: vscode.OutputChannel;
@@ -49,55 +50,41 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 /**
- * Removes connection-specific fields from datasource blocks so the v7 WASM
- * parser accepts v6 schemas. The `provider` field is intentionally kept so
- * native type annotations (e.g. @db.Timestamptz) are validated correctly.
+ * Resolver that serves the current contents of every `.prisma` document open
+ * in the editor (including unsaved edits) and falls back to disk otherwise.
  */
-function stripDatasourceConnectionFields(schema: string): string {
-  return schema.replace(
-    /^\s*(?:url|directUrl|shadowDatabaseUrl)\s*=\s*.+$/gm,
-    '',
-  );
-}
+function createWorkspaceFilesResolver() {
+  const openDocuments = vscode.workspace.textDocuments
+    .filter((doc) => doc.languageId === 'prisma' && doc.uri.scheme === 'file')
+    .map((doc) => ({ path: doc.uri.fsPath, content: doc.getText() }));
 
-async function readSchema(uri: vscode.Uri): Promise<string> {
-  const bytes = await vscode.workspace.fs.readFile(uri);
-  return stripDatasourceConnectionFields(new TextDecoder().decode(bytes));
+  return createFilesResolver(openDocuments, {
+    caseSensitive: process.platform === 'linux',
+  });
 }
 
 async function generateUMLForPrismaFile(
   context: vscode.ExtensionContext,
   fileUri: vscode.Uri,
 ) {
-  const folderUri = vscode.Uri.joinPath(fileUri, '..');
+  const files = await loadSchemaFiles(
+    fileUri.fsPath,
+    createWorkspaceFilesResolver(),
+    { workspaceRoot: vscode.workspace.getWorkspaceFolder(fileUri)?.uri.fsPath },
+  );
+  outputChannel.appendLine(
+    `Loaded ${files.length} schema file(s):\n${files.map(([path]) => `  ${path}`).join('\n')}`,
+  );
 
-  let response: Awaited<ReturnType<typeof getDMMF>> | null = null;
-
+  let response: Awaited<ReturnType<typeof getDMMF>>;
   try {
-    const content = await readSchema(fileUri);
-    response = await getDMMF({ datamodel: content });
-    outputChannel.appendLine('Successfully parsed schema from file');
+    response = await getDMMF({ datamodel: files });
   } catch (err) {
     outputChannel.appendLine(
-      `[prisma-generate-uml] Tried reading schema from file: ${err}`,
+      `[prisma-generate-uml] Failed to parse schema: ${err}`,
     );
-  }
-
-  if (!response) {
-    try {
-      const content = await readSchema(folderUri);
-      response = await getDMMF({ datamodel: content });
-      outputChannel.appendLine('Successfully parsed schema from directory');
-    } catch (err) {
-      outputChannel.appendLine(
-        `[prisma-generate-uml] Tried reading schema from directory: ${err}`,
-      );
-    }
-  }
-
-  if (!response) {
     throw new Error(
-      'No valid Prisma schema found. Make sure your schema file is valid and contains at least one model.',
+      'No valid Prisma schema found. Make sure your schema is valid and contains at least one model (see the "Prisma Generate UML" output channel for details).',
     );
   }
 

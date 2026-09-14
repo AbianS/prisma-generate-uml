@@ -20,6 +20,9 @@ importers:
       '@prisma/internals':
         specifier: 7.10.0
         version: 7.10.0(typescript@7.0.2)
+      '@prisma/schema-files-loader':
+        specifier: 7.10.0
+        version: 7.10.0
     devDependencies:
       '@prisma/dmmf':
         specifier: 7.10.0

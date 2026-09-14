@@ -5,6 +5,7 @@
       "**",
       "!!**/node_modules",
       "!!**/dist",
+      "!!**/out",
       "!!**/logs",
       "!!**/.turbo",
       "!!**/build",
