@@ -1,7 +1,17 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.13/schema.json",
+  "files": {
+    "includes": [
+      "**",
+      "!!**/node_modules",
+      "!!**/dist",
+      "!!**/logs",
+      "!!**/.turbo",
+      "!!**/build",
+      "!!**/.claude"
+    ]
+  },
   "formatter": {
-    "ignore": ["node_modules", "dist", "logs", ".turbo", "build", ".claude"],
     "enabled": true,
     "formatWithErrors": false,
     "indentStyle": "space",
@@ -10,14 +20,17 @@
     "lineWidth": 80,
     "attributePosition": "auto"
   },
-  "organizeImports": {
-    "enabled": true,
-    "ignore": ["node_modules", "dist", "logs", ".turbo", "build", ".claude"]
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "correctness": {
         "noChildrenProp": "off",
         "useExhaustiveDependencies": "off",
@@ -63,8 +76,7 @@
         "noArrayIndexKey": "off",
         "noPrototypeBuiltins": "off"
       }
-    },
-    "ignore": ["node_modules", "dist", "logs", ".turbo", "build", ".claude"]
+    }
   },
   "javascript": {
     "parser": {
@@ -80,6 +92,11 @@
       "bracketSameLine": false,
       "quoteStyle": "single",
       "attributePosition": "auto"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
     }
   }
 }

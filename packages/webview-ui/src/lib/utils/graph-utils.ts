@@ -22,7 +22,7 @@ export function bfsNeighbors(
         next.add(edge.source);
       }
     }
-    next.forEach((id) => visited.add(id));
+    for (const id of next) visited.add(id);
     frontier = next;
     if (frontier.size === 0) break;
   }

@@ -1,8 +1,8 @@
 import {
+  addEdge,
   Connection,
   ConnectionLineType,
   Edge,
-  addEdge,
   useEdgesState,
   useNodesInitialized,
   useNodesState,
@@ -11,8 +11,8 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { MyNode } from '../types/schema';
 import {
-  type LayoutDirection,
   getLayoutedElements,
+  type LayoutDirection,
 } from '../utils/layout-utils';
 
 const DEFAULT_LAYOUT: LayoutDirection = 'LR';

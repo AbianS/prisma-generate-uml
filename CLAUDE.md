@@ -17,7 +17,7 @@ A VS Code extension that generates interactive, filterable UML diagrams directly
 ## Technology Stack
 
 ## Languages
-- TypeScript 6.0.2 - All source code and configuration
+- TypeScript 7.0.2 - All source code and configuration
 - HTML/CSS - Webview UI rendering (Tailwind CSS)
 - JavaScript - Generated outputs and interop
 ## Runtime
@@ -27,34 +27,34 @@ A VS Code extension that generates interactive, filterable UML diagrams directly
 - pnpm 10.33.0
 - Lockfile: `pnpm-lock.yaml` (lockfileVersion: 9.0)
 ## Frameworks & Core Libraries
-- Prisma internals (@prisma/internals 7.6.0) - Schema parsing and DMMF transformation
-- Prisma Schema WASM (@prisma/prisma-schema-wasm 7.6.0-1.75cbdc1eb7150937890ad5465d861175c6624711) - WASM-based schema parser
-- Prisma DMMF (@prisma/dmmf 7.6.0) - Data Model Meta Format types
-- React 19.2.4 - UI component framework
-- React DOM 19.2.4 - React rendering target
-- @xyflow/react 12.10.2 - Graph visualization library (nodes, edges, controls)
-- Tailwind CSS 4.2.2 - Utility-first CSS framework
-- Lucide React 1.7.0 - Icon library
-- elkjs 0.11.1 - ELK (Eclipse Layout Kernel) algorithm for graph auto-layout
+- Prisma internals (@prisma/internals 7.10.0) - Schema parsing and DMMF transformation
+- Prisma Schema WASM (@prisma/prisma-schema-wasm 7.10.0-4.0edf323efd1d98336f3f0a68684b56f689b900d3) - WASM-based schema parser
+- Prisma DMMF (@prisma/dmmf 7.10.0) - Data Model Meta Format types
+- React 19.3.0 - UI component framework
+- React DOM 19.3.0 - React rendering target
+- @xyflow/react 12.11.6 - Graph visualization library (nodes, edges, controls)
+- Tailwind CSS 4.3.3 - Utility-first CSS framework
+- Lucide React 1.45.0 - Icon library
+- elkjs 0.12.0 - ELK (Eclipse Layout Kernel) algorithm for graph auto-layout
 - fast-deep-equal 3.1.3 - Deep equality comparison for React optimization
 - html-to-image 1.11.13 - Convert DOM to image (screenshot functionality)
 - @types/vscode 1.83.0 - Type definitions for VS Code API
 - vscode module (native, imported directly)
 ## Build & Development Tools
-- Turbo 2.9.4 (`turbo.json`) - Monorepo task orchestration
+- Turbo 2.10.12 (`turbo.json`) - Monorepo task orchestration
 - pnpm workspaces (pnpm-workspace.yaml) - Workspace configuration
-- esbuild 0.28.0 - Fast JavaScript bundler for extension
-- Vite 8.0.5 - Frontend build tool and dev server
-- @vitejs/plugin-react 6.0.1 - React Fast Refresh for Vite
-- @tailwindcss/vite 4.2.2 - Tailwind CSS Vite plugin
-- tsc (TypeScript compiler 6.0.2) - Type checking and transpilation
-- @vscode/vsce 3.7.1 - VS Code Extension CLI
+- esbuild 0.28.2 - Fast JavaScript bundler for extension
+- Vite 8.3.0 - Frontend build tool and dev server
+- @vitejs/plugin-react 6.1.1 - React Fast Refresh for Vite
+- @tailwindcss/vite 4.3.3 - Tailwind CSS Vite plugin
+- tsc (TypeScript compiler 7.0.2) - Type checking and transpilation
+- @vscode/vsce 3.9.2 - VS Code Extension CLI
 - shx 0.4.0 - Cross-platform shell commands
 ## Linting & Formatting
-- @biomejs/biome 1.9.4 - Linter and formatter (replaces ESLint + Prettier)
+- @biomejs/biome 2.5.13 - Linter and formatter (replaces ESLint + Prettier)
 ## Testing
-- @vscode/test-cli 0.0.12 - VS Code extension test CLI
-- @vscode/test-electron 2.5.2 - Electron testing runtime
+- @vscode/test-cli 0.0.15 - VS Code extension test CLI
+- @vscode/test-electron 3.1.0 - Electron testing runtime
 - @types/mocha 10.0.10 - Mocha test types (implied test runner)
 ## Configuration
 - No `.env` files required for core functionality
@@ -102,7 +102,7 @@ A VS Code extension that generates interactive, filterable UML diagrams directly
 - Export types used across packages (e.g., `type Model` exported from `render.ts`)
 - Record types use PascalCase: `Record<string, JSX.Element>`
 ## Code Style
-- Biome formatter (version 1.9.4) with 2-space indentation
+- Biome formatter (version 2.5.13) with 2-space indentation
 - Line width: 80 characters
 - Line ending: LF (Unix)
 - Double quotes for JSX attributes: `className="..."` but single quotes for regular strings

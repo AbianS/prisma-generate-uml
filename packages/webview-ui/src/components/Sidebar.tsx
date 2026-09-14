@@ -510,7 +510,6 @@ interface ToggleRowProps {
 
 function ToggleRow({ label, checked, onChange, dark }: ToggleRowProps) {
   return (
-    // biome-ignore lint/a11y/noLabelWithoutControl: label wraps a button[role=switch], which is a valid accessible pattern
     <label className="flex items-center justify-between gap-2 cursor-pointer">
       <span className={`text-xs ${dark ? 'text-gray-300' : 'text-gray-600'}`}>
         {label}

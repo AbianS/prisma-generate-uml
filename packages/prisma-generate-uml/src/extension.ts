@@ -2,6 +2,7 @@ import { getDMMF } from '@prisma/internals';
 import * as vscode from 'vscode';
 import { transformDmmfToModelsAndConnections } from './core/render';
 import { PrismaUMLPanel } from './panels/prisma-uml-panel';
+
 let outputChannel: vscode.OutputChannel;
 
 export function activate(context: vscode.ExtensionContext) {

@@ -1,7 +1,7 @@
 import {
   type Edge,
-  type Node,
   getConnectedEdges,
+  type Node,
   useOnSelectionChange,
   useReactFlow,
 } from '@xyflow/react';
@@ -36,7 +36,7 @@ export function useConnectionHighlight() {
         getConnectedEdges(selectedNodes, allEdges).map((e) => e.id),
       );
       // Also include directly selected edges
-      selectedEdges.forEach((e) => connectedEdgeIds.add(e.id));
+      for (const e of selectedEdges) connectedEdgeIds.add(e.id);
 
       // Collect node IDs that are connected
       const connectedNodeIds = new Set(selectedNodes.map((n) => n.id));
