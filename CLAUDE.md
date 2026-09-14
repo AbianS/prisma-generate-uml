@@ -1,4 +1,3 @@
-<!-- GSD:project-start source:PROJECT.md -->
 ## Project
 
 **prisma-generate-uml**
@@ -14,9 +13,7 @@ A VS Code extension that generates interactive, filterable UML diagrams directly
 - **Compatibility**: Must support Prisma v6 and v7 schema syntax
 - **Bundle size**: Extension and webview ship as a VSIX — keep dependencies lean
 - **No breaking changes**: Existing settings/context API shape must remain backward-compatible
-<!-- GSD:project-end -->
 
-<!-- GSD:stack-start source:codebase/STACK.md -->
 ## Technology Stack
 
 ## Languages
@@ -85,9 +82,7 @@ A VS Code extension that generates interactive, filterable UML diagrams directly
 - Extension: `dist/extension.js` (minified, bundled)
 - Webview: `packages/webview-ui/build/` (Vite output)
 - WASM: Copied to `dist/` for Prisma schema parser
-<!-- GSD:stack-end -->
 
-<!-- GSD:conventions-start source:CONVENTIONS.md -->
 ## Conventions
 
 ## Naming Patterns
@@ -175,9 +170,7 @@ A VS Code extension that generates interactive, filterable UML diagrams directly
 - `lib/contexts/`: React context providers (settings, theme, filter)
 - `lib/utils/`: Non-React utility functions (layout, graph, screenshots)
 - `lib/hooks/`: Custom React hooks (graph state, connection highlights)
-<!-- GSD:conventions-end -->
 
-<!-- GSD:architecture-start source:ARCHITECTURE.md -->
 ## Architecture
 
 ## Pattern Overview
@@ -267,32 +260,3 @@ A VS Code extension that generates interactive, filterable UML diagrams directly
 - Handle position validation per layout direction (PORT_SIDES config)
 - Extension has no auth; reads local schema files via VS Code workspace FS
 - No external API calls; purely local schema processing
-<!-- GSD:architecture-end -->
-
-<!-- GSD:skills-start source:skills/ -->
-## Project Skills
-
-No project skills found. Add skills to any of: `.claude/skills/`, `.agents/skills/`, `.cursor/skills/`, or `.github/skills/` with a `SKILL.md` index file.
-<!-- GSD:skills-end -->
-
-<!-- GSD:workflow-start source:GSD defaults -->
-## GSD Workflow Enforcement
-
-Before using Edit, Write, or other file-changing tools, start work through a GSD command so planning artifacts and execution context stay in sync.
-
-Use these entry points:
-- `/gsd-quick` for small fixes, doc updates, and ad-hoc tasks
-- `/gsd-debug` for investigation and bug fixing
-- `/gsd-execute-phase` for planned phase work
-
-Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
-<!-- GSD:workflow-end -->
-
-
-
-<!-- GSD:profile-start -->
-## Developer Profile
-
-> Profile not yet configured. Run `/gsd-profile-user` to generate your developer profile.
-> This section is managed by `generate-claude-profile` -- do not edit manually.
-<!-- GSD:profile-end -->
