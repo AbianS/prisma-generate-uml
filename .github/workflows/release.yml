@@ -32,6 +32,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Package extension (.vsix)
+        run: pnpm --filter prisma-generate-uml package
+
       - name: Get version from tag
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
