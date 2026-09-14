@@ -13,6 +13,7 @@ vite.config.ts
 .env
 .DS_Store
 tsconfig.json
+tsconfig.*.json
 biome.json
 *.tsbuildinfo
 .cache/**
