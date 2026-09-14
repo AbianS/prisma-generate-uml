@@ -21,7 +21,7 @@
 - 🔥 **Instant UML Diagrams**: Generate UML diagrams from Prisma schemas with a single click.
 - 🖼 **Easy Visualization**: Simplify data architecture visualization in an exciting way.
 - 🛠 **Seamless Integration**: Works seamlessly within VSCode, no extra configuration required.
-- 📂 **Multi-file Prisma Schema Support**: We fully support Prisma's `prismaSchemaFolder` feature, allowing you to split your schema into multiple files while still generating a complete UML diagram of your entire database.
+- 📂 **Multi-file Prisma Schema Support**: We fully support Prisma's `prismaSchemaFolder` feature, allowing you to split your schema into multiple files — including nested subdirectories like `models/catalog/*.prisma` — while still generating a complete UML diagram of your entire database. Run the command from any file of the schema.
 - 🔃 **Automatic Updates**: We'll keep your UML diagrams up-to-date with the latest changes to your Prisma schema.
 
 ## 🔍 What It Does

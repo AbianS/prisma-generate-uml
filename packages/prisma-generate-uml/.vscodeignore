@@ -24,3 +24,4 @@ biome.json
 !README.md
 !LICENSE
 !webview-ui/build/**
+out/**
