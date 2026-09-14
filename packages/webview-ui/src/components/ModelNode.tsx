@@ -1,9 +1,4 @@
 import { Handle, NodeProps, Position } from '@xyflow/react';
-import { JSX, memo } from 'react';
-import { useSettings } from '../lib/contexts/settings';
-import { useTheme } from '../lib/contexts/theme';
-import { ModelNodeType } from '../lib/types/schema';
-
 import {
   Calculator,
   Calendar,
@@ -16,6 +11,10 @@ import {
   List,
   Type,
 } from 'lucide-react';
+import { JSX, memo } from 'react';
+import { useSettings } from '../lib/contexts/settings';
+import { useTheme } from '../lib/contexts/theme';
+import { ModelNodeType } from '../lib/types/schema';
 
 const typeIcons: Record<string, JSX.Element> = {
   string: <Type size={13} />,

@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useContext } from 'react';
+import { createContext, ReactNode, useContext } from 'react';
 import { ColorThemeKind } from '../types/schema';
 
 type ThemeContextType = {

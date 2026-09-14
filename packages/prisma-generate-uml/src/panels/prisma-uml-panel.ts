@@ -15,7 +15,7 @@ export class PrismaUMLPanel {
   private constructor(
     panel: vscode.WebviewPanel,
     private readonly _extensionUri: vscode.Uri,
-    private readonly _currentFileUri: vscode.Uri,
+    _currentFileUri: vscode.Uri,
     models: Model[],
     connections: ModelConnection[],
     enums: Enum[],

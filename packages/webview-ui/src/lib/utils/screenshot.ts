@@ -1,4 +1,4 @@
-import { Node, getNodesBounds, getViewportForBounds } from '@xyflow/react';
+import { getNodesBounds, getViewportForBounds, Node } from '@xyflow/react';
 import { toPng } from 'html-to-image';
 import { getVsCodeApi } from './vscode-api';
 
