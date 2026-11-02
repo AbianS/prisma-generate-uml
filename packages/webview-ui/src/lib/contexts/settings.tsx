@@ -11,6 +11,7 @@ export interface DiagramSettings {
   layout: 'TB' | 'LR' | 'BT' | 'RL';
   showFieldTypes: boolean;
   showFieldIcons: boolean;
+  showFieldNullability: boolean;
   showMinimap: boolean;
   showBackground: boolean;
   backgroundVariant: 'lines' | 'dots' | 'cross';
@@ -27,6 +28,7 @@ export const DEFAULT_SETTINGS: DiagramSettings = {
   layout: 'TB',
   showFieldTypes: true,
   showFieldIcons: true,
+  showFieldNullability: true,
   showMinimap: true,
   showBackground: true,
   backgroundVariant: 'lines',

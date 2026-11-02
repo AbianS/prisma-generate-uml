@@ -8,6 +8,8 @@ export type Model = {
     hasConnections?: boolean;
     isPrimary?: boolean;
     isEnum?: boolean;
+    /** Whether the field is optional (`?`) in the Prisma schema. */
+    isNullable?: boolean;
   }[];
   isChild?: boolean;
 };
@@ -62,6 +64,7 @@ export function generateModels(models: readonly DMMF.Model[]): Model[] {
         field.kind === 'object' || (field.relationFromFields?.length ?? 0) > 0,
       isPrimary: field.isId === true,
       isEnum: field.kind === 'enum',
+      isNullable: !field.isRequired,
     })),
     isChild: model.fields.some(
       (field) => (field.relationFromFields?.length ?? 0) > 0,

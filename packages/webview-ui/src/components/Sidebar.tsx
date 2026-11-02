@@ -330,6 +330,12 @@ export function Sidebar({
               onChange={(v) => updateSetting('showFieldIcons', v)}
               dark={dark}
             />
+            <ToggleRow
+              label="Nullable fields"
+              checked={settings.showFieldNullability}
+              onChange={(v) => updateSetting('showFieldNullability', v)}
+              dark={dark}
+            />
           </div>
         </SectionAccordion>
 

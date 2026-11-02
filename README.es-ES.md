@@ -150,6 +150,7 @@ npm run dev
 - 🖼 **Visualización Sencilla**: Simplifica la visualización de la arquitectura de datos de manera intuitiva
 - 🛠 **Integración Fluida**: Funciona sin problemas dentro de VSCode, sin necesidad de configuración adicional
 - 📂 **Soporte para Esquemas de Prisma en Varios Archivos**: Soporte completo para la función `prismaSchemaFolder` de Prisma
+- ❓ **Indicadores de Campos Opcionales**: Los campos opcionales se marcan con el sufijo `?`, igual que en tu esquema de Prisma
 - 🔃 **Actualizaciones Automáticas**: Mantén tus diagramas UML actualizados con los cambios en el esquema
 
 ## 🏃‍♂️ Uso Rápido
