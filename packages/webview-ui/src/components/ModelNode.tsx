@@ -35,6 +35,13 @@ const getIconForType = (type: string) => {
   return typeIcons[type.toLowerCase()] || <Link2 size={13} />;
 };
 
+/** Renders the Prisma-style optional marker without mutating the raw type. */
+const getDisplayType = (
+  type: string,
+  isNullable: boolean | undefined,
+  showNullability: boolean,
+) => (isNullable && showNullability ? `${type}?` : type);
+
 export const ModelNode = memo(
   ({
     data,
@@ -98,7 +105,10 @@ export const ModelNode = memo(
         {/* Fields */}
         <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800">
           {data.fields.map(
-            ({ type, name, hasConnections, isPrimary, isEnum }, index) => (
+            (
+              { type, name, hasConnections, isPrimary, isEnum, isNullable },
+              index,
+            ) => (
               <div
                 key={name}
                 className={[
@@ -149,9 +159,17 @@ export const ModelNode = memo(
                       'ml-auto font-mono text-[10px] flex-shrink-0',
                       isDarkMode ? 'text-gray-500' : 'text-gray-400',
                     ].join(' ')}
-                    title={type}
+                    title={getDisplayType(
+                      type,
+                      isNullable,
+                      settings.showFieldNullability,
+                    )}
                   >
-                    {type}
+                    {getDisplayType(
+                      type,
+                      isNullable,
+                      settings.showFieldNullability,
+                    )}
                   </span>
                 )}
 

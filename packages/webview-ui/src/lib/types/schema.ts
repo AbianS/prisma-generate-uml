@@ -8,6 +8,8 @@ export type Model = {
     hasConnections?: boolean;
     isPrimary?: boolean;
     isEnum?: boolean;
+    /** Whether the field is optional (`?`) in the Prisma schema. */
+    isNullable?: boolean;
   }[];
   isChild?: boolean;
 };

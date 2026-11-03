@@ -148,6 +148,7 @@ npm run dev
 - 🖼 **Easy Visualization**: Simplify data architecture visualization in an exciting way
 - 🛠 **Seamless Integration**: Works seamlessly within VSCode, no extra configuration required
 - 📂 **Multi-file Prisma Schema Support**: Full support for Prisma's `prismaSchemaFolder` feature
+- ❓ **Nullable Field Indicators**: Optional fields are marked with a `?` suffix, just like in your Prisma schema
 - 🔃 **Automatic Updates**: Keep your UML diagrams up-to-date with schema changes
 
 ## 🏃‍♂️ Quick Usage
