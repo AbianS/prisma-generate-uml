@@ -159,7 +159,11 @@ export const ModelNode = memo(
                       'ml-auto font-mono text-[10px] flex-shrink-0',
                       isDarkMode ? 'text-gray-500' : 'text-gray-400',
                     ].join(' ')}
-                    title={type}
+                    title={getDisplayType(
+                      type,
+                      isNullable,
+                      settings.showFieldNullability,
+                    )}
                   >
                     {getDisplayType(
                       type,
